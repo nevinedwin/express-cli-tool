@@ -1,0 +1,38 @@
+{
+  "name": "clitool",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "files": [
+    "bin",
+    "dist",
+    "!**/.gitattributes"
+  ],
+  "preferGlobal": true,
+  "scripts": {
+    "test": "node ./dist/index.js",
+    "dev": "tsc",
+    "unlink": "npm uninstall -g ",
+    "link": "npm i -g",
+    "start": "npm run build && npm run unlink && npm run link && clear",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && npm run dev && node scripts/copyTemplates.js"
+  },
+  "main": "dist/index.js",
+  "bin": {
+    "etool": "./bin/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/inquirer": "^9.0.4",
+    "@types/node": "^20.8.4",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.0.0",
+    "inquirer": "^9.2.11"
+  }
+}
