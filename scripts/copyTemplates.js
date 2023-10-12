@@ -22,7 +22,8 @@ const copyTemplate = (source, destination) => {
 };
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename).replace(/\/scripts$/, "");
+const __dirname = dirname(__filename).slice(0, dirname(__filename).lastIndexOf("\scripts"));
+
 
 const sourceDir = path.join(__dirname, 'src', 'templates');
 const destinationDir = path.join(__dirname, 'dist', 'templates');

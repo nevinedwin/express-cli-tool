@@ -18,7 +18,7 @@ export function File<Base extends Class>(base: Base) {
 
     checkFileExists(source: string, destination: string): Array<any> {
       try {
-        const newDestination = destination.replace(/\/$/, '');
+        const newDestination = destination.slice(0, destination.lastIndexOf("/"));
         if (newDestination !== source && fs.existsSync(destination)) {
           return [null, true];
         };
@@ -32,13 +32,12 @@ export function File<Base extends Class>(base: Base) {
     checkFolderContains(templateName: string, destination: string): Array<any> {
 
       try {
-        console.log(this.__dirname);
 
         if (!fs.existsSync(destination)) {
           return [null, []]
         };
 
-        const templatePath: string = this.__dirname.replace(/\/lib$/, `/templates/${templateName}`);
+        const templatePath: string = `${this.__dirname.slice(0, this.__dirname.lastIndexOf("\lib"))}/templates/${templateName}`;
         const templateFiles: Array<string> = fs.readdirSync(templatePath);
         const destinationArray: Array<string> = fs.readdirSync(destination);
 
@@ -64,7 +63,6 @@ export function File<Base extends Class>(base: Base) {
         const templatePath: string = this.__dirname.replace(/\/lib$/, `/templates/${templateName}`);
         const databasePath: string = this.__dirname.replace(/\/lib$/, `/templates/dbtemplates/${dbname}.js`);
         const destinationPath: string = path.join(templatePath, 'shared', 'db.shared.js');
-        console.log(destinationPath);
 
         if (!fs.existsSync(destinationPath)) {
           new Promise((resolve, reject) => {
@@ -81,7 +79,7 @@ export function File<Base extends Class>(base: Base) {
 
       let source: string = "";
       if (!flag) {
-        source = this.__dirname.replace(/\/lib$/, `/templates/${templateName}`);
+        source = `${this.__dirname.slice(0, this.__dirname.lastIndexOf("\lib"))}/templates/${templateName}`;
       } else {
         source = templateName;
       };

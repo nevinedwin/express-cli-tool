@@ -13,7 +13,7 @@ export function File(base) {
         ;
         checkFileExists(source, destination) {
             try {
-                const newDestination = destination.replace(/\/$/, '');
+                const newDestination = destination.slice(0, destination.lastIndexOf("/"));
                 if (newDestination !== source && fs.existsSync(destination)) {
                     return [null, true];
                 }
@@ -28,12 +28,11 @@ export function File(base) {
         ;
         checkFolderContains(templateName, destination) {
             try {
-                console.log(this.__dirname);
                 if (!fs.existsSync(destination)) {
                     return [null, []];
                 }
                 ;
-                const templatePath = this.__dirname.replace(/\/lib$/, `/templates/${templateName}`);
+                const templatePath = `${this.__dirname.slice(0, this.__dirname.lastIndexOf("\lib"))}/templates/${templateName}`;
                 const templateFiles = fs.readdirSync(templatePath);
                 const destinationArray = fs.readdirSync(destination);
                 let duplicateFileArray = [];
@@ -58,7 +57,6 @@ export function File(base) {
                 const templatePath = this.__dirname.replace(/\/lib$/, `/templates/${templateName}`);
                 const databasePath = this.__dirname.replace(/\/lib$/, `/templates/dbtemplates/${dbname}.js`);
                 const destinationPath = path.join(templatePath, 'shared', 'db.shared.js');
-                console.log(destinationPath);
                 if (!fs.existsSync(destinationPath)) {
                     new Promise((resolve, reject) => {
                         fs.copyFileSync(databasePath, destinationPath);
@@ -75,7 +73,7 @@ export function File(base) {
         createTemplate(templateName = "", destination = "", flag = false) {
             let source = "";
             if (!flag) {
-                source = this.__dirname.replace(/\/lib$/, `/templates/${templateName}`);
+                source = `${this.__dirname.slice(0, this.__dirname.lastIndexOf("\lib"))}/templates/${templateName}`;
             }
             else {
                 source = templateName;
