@@ -1,0 +1,41 @@
+command.ts------
+  args : arguments
+  cp   : current path
+  f    : folder
+  cbp  : create boiler plate
+    cwd  : current working directory
+    t    : template
+    tn   : temmplate name
+    isE  : isExists
+    isC  : isContains
+  prs  : parse
+
+
+file.ts-------
+  exf  : exist file
+    s    : source
+    d    : destination
+    nd   : new destination
+  caf  : contain any folder
+    s    : source
+    tn   : template name
+    d    : destination
+    tp   : template path
+    dA   : destination array
+    dpA  : duplicate path array
+    setA : set of an array
+
+prompts.ts------
+  _plntxt: plain text
+      txt  : text
+  PromptClass:
+      ct   : create template
+          t   : template
+          e   : error
+          tn  : template name
+      cf   : create folder
+          fn  : folder name
+          e   : error
+
+constants.ts-----
+  tc   : template choices
