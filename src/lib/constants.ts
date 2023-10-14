@@ -14,14 +14,18 @@ export const constants: Record<string, any> = {
     "expressts"
   ],
   db: [
-    "mongodb",
-    "dynamodb",
-    "no-db"
+    "mongo",
+    "dynamo",
+    "none"
   ],
   templates: {
     "Express-JS": 'express-template',
     "Express-TS": 'express-ts-template',
     "expressjs": 'express-template',
     "expressts": 'express-ts-template'
+  },
+  dbPackages: {
+    "mongo": "mongoose",
+    "dynamo": "aws-sdk"
   }
 };

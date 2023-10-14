@@ -12,6 +12,8 @@ type PromptType = {
   when?: boolean;
 };
 
+type DBType = "mongo" | "dynamo" | "none" | string;
+
 type Class = new (...args: any[]) => any;
 
 export async function prompt({ type, name, message = "", choices = [], validate, defaultValue, when }: PromptType): Promise<[any, string?]> {
@@ -96,14 +98,14 @@ export function PromptClass<Base extends Class>(base: Base) {
         return [error]
       };
     };
-    async promptChooseDB(db: string = ""): Promise<[any, string?]> {
+    async promptChooseDB(db: DBType = ""): Promise<[any, DBType?]> {
       try {
         let flag = false;
         if (db && !constants.db.includes(db)) {
           flag = true;
           throw `Invalid DB ${(db)}`
         };
-        let dbConfig: string = db;
+        let dbConfig: DBType = db;
         if (!db || flag) {
           const [e, newDb]: [any, string?] = await prompt({
             name: "db",
@@ -123,7 +125,7 @@ export function PromptClass<Base extends Class>(base: Base) {
     async promptDBName(dbName: string = "", projectName: string = ""): Promise<[any, string?]> {
       try {
         let name: string = dbName;
-        if (!dbName) {
+        if (typeof dbName !== "string" || !dbName) {
           const [e, nameDB]: [any, string?] = await prompt({
             name: "dbName",
             type: "input",

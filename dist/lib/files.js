@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
+import { error } from 'console';
 export function File(base) {
     return class extends base {
         __filename;
@@ -9,6 +10,30 @@ export function File(base) {
             super(...args);
             this.__filename = fileURLToPath(import.meta.url);
             this.__dirname = dirname(this.__filename);
+        }
+        ;
+        async #readFile(source) {
+            return new Promise((resolve, reject) => {
+                fs.readFile(source, 'utf-8', (err, data) => {
+                    if (err) {
+                        reject({ err });
+                    }
+                    ;
+                    resolve({ data });
+                });
+            });
+        }
+        ;
+        async #writeFile(destination, content) {
+            return new Promise((resolve, reject) => {
+                fs.writeFile(destination, content, (err) => {
+                    if (err) {
+                        reject({ err });
+                    }
+                    ;
+                    resolve({ data: true });
+                });
+            });
         }
         ;
         checkFileExists(source, destination) {
@@ -70,10 +95,15 @@ export function File(base) {
             ;
         }
         ;
+        getTemplatePath(libPath, templateName) {
+            return `${libPath.slice(0, libPath.lastIndexOf("/lib"))}/templates/${templateName}`;
+        }
+        ;
         createTemplate(templateName = "", destination = "", flag = false) {
             let source = "";
             if (!flag) {
-                source = `${this.__dirname.slice(0, this.__dirname.lastIndexOf("\lib"))}/templates/${templateName}`;
+                // source = `${this.__dirname.slice(0, this.__dirname.lastIndexOf("\lib"))}/templates/${templateName}`;
+                source = this.getTemplatePath(this.__dirname, templateName);
             }
             else {
                 source = templateName;
@@ -96,6 +126,18 @@ export function File(base) {
             }
             ;
         }
+        ;
+        async createDBFile(destination, dbType) {
+            const source = this.getTemplatePath(this.__dirname, `dbTemplates/${dbType}.config.js`);
+            const newDestination = `${destination}/shared/db.shared.js`;
+            const readResult = await this.#readFile(source);
+            if (readResult.err) {
+                return { status: false, error };
+            }
+            ;
+            readResult.data && await this.#writeFile(newDestination, readResult.data);
+        }
+        ;
     };
 }
 ;

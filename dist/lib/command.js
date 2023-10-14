@@ -4,6 +4,8 @@ import path from "path";
 import { File } from "./files.js";
 import { LoggerClass } from "./logger.js";
 import { constants } from "./constants.js";
+import { exec } from "child_process";
+import ora from "ora";
 export class CommandClass extends File(LoggerClass(PromptClass(class {
 }))) {
     args;
@@ -33,7 +35,7 @@ export class CommandClass extends File(LoggerClass(PromptClass(class {
             .description('For creating templated')
             .option('--template [value]', "Initialize with a template")
             .option('--port [value]', 'Initialize with port')
-            .option('--db [value]', 'Initalize with a db')
+            .option('--d [value]', 'Initalize with a db. Accepts ("monogo", "dynamo", "none")')
             .option('--dbname [value]', 'Initizalize with a db name')
             .action(async (action = "", cmd) => {
             await this.createBoilerPlate(action, cmd);
@@ -50,8 +52,8 @@ export class CommandClass extends File(LoggerClass(PromptClass(class {
                 throw super.logInvalidTemplate(options.port, "port");
             }
             ;
-            if (options.db && !constants.db.includes(options.db)) {
-                throw super.logInvalidTemplate(options.db, "database");
+            if (options.d && !constants.db.includes(options.d)) {
+                throw super.logInvalidTemplate(options.d, "database");
             }
             ;
             if (!targetDir) {
@@ -70,20 +72,20 @@ export class CommandClass extends File(LoggerClass(PromptClass(class {
             if (e || !templateName)
                 throw e || "Prompting Error";
             this.template = templateName;
-            const [ef, folderExists] = super.checkFolderContains(this.template, cwd);
+            const [ef, folderExists] = super.checkFolderContains(this.template, this.destination);
             if (ef)
                 throw ef;
             if (folderExists.length)
-                throw super.logFolderConflicts(cwd, folderExists);
+                throw super.logFolderConflicts(this.destination, folderExists);
             const [err, port] = await super.promptChoosePort(options.port);
             if (err || !port)
                 throw err || "Prompting Error";
             this.port = port;
-            const [er, db] = await super.promptChooseDB(options.db);
+            const [er, db] = await super.promptChooseDB(options.d);
             if (er || !db)
-                throw er;
+                throw er || "PromptError";
             this.db = db;
-            if (db && db !== "no-db") {
+            if (this.db && this.db !== "none") {
                 const [e, dbName] = await super.promptDBName(options.dbname, this.folderName);
                 if (e || !dbName)
                     throw e;
@@ -91,10 +93,50 @@ export class CommandClass extends File(LoggerClass(PromptClass(class {
             }
             ;
             super.createTemplate(this.template, this.destination);
+            const spinner = ora('Installing basic npm packages...').start();
+            const isInstallSuccess = await this.#npmInstall();
+            if (!isInstallSuccess.status) {
+                spinner.fail("npm package installation failed..");
+                throw isInstallSuccess.error;
+            }
+            ;
+            spinner.succeed("Succesfully installed basic npm packages");
+            if (constants.db.includes(this.db) && this.db !== 'none') {
+                super.createDBFile(this.destination, this.db);
+                const packageName = constants.dbPackages[this.db];
+                const spinner = ora(`Installing packages for db`).start();
+                const dbPackage = await this.#npmInstall(packageName);
+                if (!dbPackage.status) {
+                    spinner.fail('Intallation failed');
+                    throw dbPackage.error;
+                }
+                ;
+                spinner.succeed();
+            }
+            ;
         }
         catch (er) {
             console.log(er);
             process.exit(1);
+        }
+        ;
+    }
+    ;
+    async #npmInstall(packageName = "") {
+        const command = packageName ? `npm i ${packageName}` : `npm i`;
+        const installNpm = await new Promise((resolve, reject) => {
+            exec(`cd ${this.destination} && ${command}`, (error, stdout, stderr) => {
+                if (error) {
+                    reject({ error });
+                }
+                resolve({ stderr, stdout });
+            });
+        });
+        if (installNpm.error) {
+            return { status: false, error: installNpm.error };
+        }
+        else {
+            return { status: true, stdout: installNpm.stdout, stderr: installNpm.stderr };
         }
         ;
     }

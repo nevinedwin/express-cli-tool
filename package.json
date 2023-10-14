@@ -1,5 +1,5 @@
 {
-  "name": "clitool",
+  "name": "express-bp-cli",
   "version": "1.0.0",
   "description": "",
   "type": "module",
@@ -14,14 +14,15 @@
     "dev": "tsc",
     "unlink": "npm uninstall -g ",
     "link": "npm i -g",
-    "start": "npm run build && npm run unlink && npm run link && clear",
+    "start": "npm run clean && npm run build && npm run unlink && npm run link && clear",
+    "startW": "npm run build && npm run unlink && npm run link && clear",
     "clean": "rm -rf dist",
     "cleanWindows": "rmdir /s dist",
     "build": "npm run dev && node scripts/copyTemplates.js"
   },
   "main": "dist/index.js",
   "bin": {
-    "etool": "./bin/index.js"
+    "express-bp": "./bin/index.js"
   },
   "keywords": [],
   "author": "",
@@ -34,6 +35,7 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^11.0.0",
-    "inquirer": "^9.2.11"
+    "inquirer": "^9.2.11",
+    "ora": "^7.0.1"
   }
 }

@@ -1,12 +1,26 @@
+/// <reference types="node" resolution-mode="require"/>
 declare const CommandClass_base: {
     new (...args: any[]): {
         [x: string]: any;
         __filename: any;
         __dirname: any;
+        "__#1@#readFile"(source: string): Promise<{
+            err?: NodeJS.ErrnoException | null | undefined;
+            data?: string | undefined;
+        }>;
+        "__#1@#writeFile"(destination: string, content: string): Promise<{
+            err?: NodeJS.ErrnoException | null | undefined;
+            data?: boolean | undefined;
+        }>;
         checkFileExists(source: string, destination: string): any[];
         checkFolderContains(templateName: string, destination: string): any[];
         copyTheDBFile(templateName?: string, dbname?: string): unknown[];
+        getTemplatePath(libPath: string, templateName: string): string;
         createTemplate(templateName?: string, destination?: string, flag?: boolean): void;
+        createDBFile(destination: string, dbType: string): Promise<{
+            status: boolean;
+            error: (message?: any, ...optionalParams: any[]) => void;
+        } | undefined>;
     };
 } & {
     new (...args: any[]): {
@@ -28,6 +42,7 @@ declare const CommandClass_base: {
     new (): {};
 };
 export declare class CommandClass extends CommandClass_base {
+    #private;
     private args;
     private currentPath;
     private folderName;

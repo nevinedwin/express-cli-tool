@@ -4,6 +4,18 @@ import path from "path";
 import { File } from "./files.js";
 import { LoggerClass } from "./logger.js";
 import { constants } from "./constants.js";
+import { ExecException, exec } from "child_process";
+import ora from "ora";
+
+type NpmInstallType = {
+  status: boolean;
+  error?: ExecException | null,
+  stderr?: string,
+  stdout?: string
+};
+
+
+type DBType = "mongo" | "dynamo" | "none" | string;
 
 export class CommandClass extends File(LoggerClass(PromptClass(class { }))) {
 
@@ -13,7 +25,7 @@ export class CommandClass extends File(LoggerClass(PromptClass(class { }))) {
   private template: string;
   private port: number;
   private dbName: string;
-  private db: string;
+  private db: DBType;
   private destination: string;
 
   constructor(pss: Record<any, any>) {
@@ -35,7 +47,7 @@ export class CommandClass extends File(LoggerClass(PromptClass(class { }))) {
       .description('For creating templated')
       .option('--template [value]', "Initialize with a template")
       .option('--port [value]', 'Initialize with port')
-      .option('--db [value]', 'Initalize with a db')
+      .option('--d [value]', 'Initalize with a db. Accepts ("monogo", "dynamo", "none")')
       .option('--dbname [value]', 'Initizalize with a db name')
       .action(async (action: string = "", cmd: Record<any, any>) => {
         await this.createBoilerPlate(action, cmd)
@@ -50,8 +62,8 @@ export class CommandClass extends File(LoggerClass(PromptClass(class { }))) {
       if (options.port && !/^[0-9]+$/.test(options.port)) {
         throw super.logInvalidTemplate(options.port, "port")
       };
-      if (options.db && !constants.db.includes(options.db)) {
-        throw super.logInvalidTemplate(options.db, "database")
+      if (options.d && !constants.db.includes(options.d)) {
+        throw super.logInvalidTemplate(options.d, "database")
       };
 
       if (!targetDir) {
@@ -71,30 +83,67 @@ export class CommandClass extends File(LoggerClass(PromptClass(class { }))) {
 
       this.template = templateName;
 
-      const [ef, folderExists] = super.checkFolderContains(this.template, cwd);
+      const [ef, folderExists] = super.checkFolderContains(this.template, this.destination);
       if (ef) throw ef;
       if (folderExists.length)
-        throw super.logFolderConflicts(cwd, folderExists);
+        throw super.logFolderConflicts(this.destination, folderExists);
 
       const [err, port] = await super.promptChoosePort(options.port);
       if (err || !port) throw err || "Prompting Error";
       this.port = port;
 
-      const [er, db] = await super.promptChooseDB(options.db);
-      if (er || !db) throw er;
+      const [er, db] = await super.promptChooseDB(options.d);
+      if (er || !db) throw er || "PromptError";
       this.db = db;
 
-      if (db && db !== "no-db") {
+      if (this.db && this.db !== "none") {
         const [e, dbName] = await super.promptDBName(options.dbname, this.folderName);
         if (e || !dbName) throw e;
         this.dbName = dbName;
       };
       super.createTemplate(this.template, this.destination);
+      const spinner = ora('Installing basic npm packages...').start();
+      const isInstallSuccess: NpmInstallType = await this.#npmInstall();
+      if (!isInstallSuccess.status) {
+        spinner.fail("npm package installation failed..");
+        throw isInstallSuccess.error;
+      };
+      spinner.succeed("Succesfully installed basic npm packages");
 
+      if (constants.db.includes(this.db) && this.db !== 'none') {
+        super.createDBFile(this.destination, this.db);
+        const packageName = constants.dbPackages[this.db];
+        const spinner = ora(`Installing packages for db`).start();
+        const dbPackage = await this.#npmInstall(packageName);
+        if (!dbPackage.status) {
+          spinner.fail('Intallation failed');
+          throw dbPackage.error;
+        };
+        spinner.succeed()
+      };
 
     } catch (er) {
       console.log(er);
-      process.exit(1)
+      process.exit(1);
+    };
+  };
+
+
+  async #npmInstall(packageName: string = ""): Promise<NpmInstallType> {
+    const command = packageName ? `npm i ${packageName}` : `npm i`;
+    const installNpm: { error?: ExecException | null, stderr: string, stdout: string } = await new Promise((resolve, reject) => {
+      exec(`cd ${this.destination} && ${command}`, (error: ExecException | null, stdout: string, stderr: string) => {
+        if (error) {
+          reject({ error });
+        }
+        resolve({ stderr, stdout })
+      })
+    })
+
+    if (installNpm.error) {
+      return { status: false, error: installNpm.error };
+    } else {
+      return { status: true, stdout: installNpm.stdout, stderr: installNpm.stderr };
     };
   };
 

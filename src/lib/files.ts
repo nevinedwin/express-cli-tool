@@ -1,8 +1,10 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
+import { error } from 'console';
 
 type Class = new (...args: any[]) => any;
+type DBType = "mongo" | "dynamo" | "none" | string;
 
 export function File<Base extends Class>(base: Base) {
   return class extends base {
@@ -14,6 +16,28 @@ export function File<Base extends Class>(base: Base) {
       super(...args)
       this.__filename = fileURLToPath(import.meta.url);
       this.__dirname = dirname(this.__filename);
+    };
+
+    async #readFile(source: string): Promise<{ err?: NodeJS.ErrnoException | null, data?: string }> {
+      return new Promise((resolve, reject) => {
+        fs.readFile(source, 'utf-8', (err: NodeJS.ErrnoException | null, data: string) => {
+          if (err) {
+            reject({ err });
+          };
+          resolve({ data });
+        });
+      });
+    };
+
+    async #writeFile(destination: string, content: string): Promise<{ err?: NodeJS.ErrnoException | null, data?: boolean }> {
+      return new Promise((resolve, reject) => {
+        fs.writeFile(destination, content, (err: NodeJS.ErrnoException | null) => {
+          if (err) {
+            reject({ err });
+          };
+          resolve({ data: true })
+        });
+      });
     };
 
     checkFileExists(source: string, destination: string): Array<any> {
@@ -75,11 +99,17 @@ export function File<Base extends Class>(base: Base) {
       };
     };
 
+
+    getTemplatePath(libPath: string, templateName: string): string {
+      return `${libPath.slice(0, libPath.lastIndexOf("/lib"))}/templates/${templateName}`
+    };
+
     createTemplate(templateName: string = "", destination: string = "", flag: boolean = false) {
 
       let source: string = "";
       if (!flag) {
-        source = `${this.__dirname.slice(0, this.__dirname.lastIndexOf("\lib"))}/templates/${templateName}`;
+        // source = `${this.__dirname.slice(0, this.__dirname.lastIndexOf("\lib"))}/templates/${templateName}`;
+        source = this.getTemplatePath(this.__dirname, templateName);
       } else {
         source = templateName;
       };
@@ -99,7 +129,18 @@ export function File<Base extends Class>(base: Base) {
           fs.copyFileSync(sourcePath, destinationPath);
         }
       };
-    }
+    };
 
+    async createDBFile(destination: string, dbType: DBType) {
+      const source = this.getTemplatePath(this.__dirname, `dbTemplates/${dbType}.config.js`);
+      const newDestination = `${destination}/shared/db.shared.js`;
+
+      const readResult = await this.#readFile(source)
+      if (readResult.err) {
+        return { status: false, error }
+      };
+
+      readResult.data && await this.#writeFile(newDestination, readResult.data);
+    };
   };
 };

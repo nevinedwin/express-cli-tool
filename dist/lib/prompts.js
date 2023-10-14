@@ -122,7 +122,7 @@ export function PromptClass(base) {
         async promptDBName(dbName = "", projectName = "") {
             try {
                 let name = dbName;
-                if (!dbName) {
+                if (typeof dbName !== "string" || !dbName) {
                     const [e, nameDB] = await prompt({
                         name: "dbName",
                         type: "input",
