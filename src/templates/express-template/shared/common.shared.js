@@ -1,7 +1,7 @@
 const { STRINGS, status_codes_msg } = require("./static.shared");
 
 // for returning the success response
-const responseSucess = (
+const success = (
   res,
   message = status_codes_msg.SUCESS.message,
   data
@@ -12,7 +12,7 @@ const responseSucess = (
 };
 
 //for returning the error response
-const responseError = (res, err, attempts) => {
+const failure = (res, err, attempts) => {
   return res.status(err?.code || 500).json({
     message: err?.message || err || STRINGS.OOPS,
     attempts,
@@ -21,6 +21,6 @@ const responseError = (res, err, attempts) => {
 
 
 module.exports = {
-  responseSucess,
-  responseError
+  success,
+  failure
 };

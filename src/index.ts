@@ -128,6 +128,9 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
         };
 
         spinner.succeed()
+
+        const modelCreation = await super.createModel('test', this.destination, this.db);
+        if (modelCreation.error) throw modelCreation.error;
       };
 
     } catch (er) {
@@ -138,18 +141,11 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
 
   async createModule(action: string) {
     try {
-
+      if (!action) throw super.logModuleNameNotProvided();
+      super.checkModuleExists(this.destination, true);
     } catch (error) {
       console.log(error);
       process.exit(1);
-    };
-  };
-
-  async #createConfigFile() {
-    try {
-
-    } catch (error) {
-      console.log(error);
     };
   };
 

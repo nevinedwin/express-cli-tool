@@ -7,7 +7,7 @@ const hpp = require("hpp");
 const helmet = require("helmet");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
-const { responseError } = require('./shared/common.shared');
+const { failure } = require('./shared/common.shared');
 const { status_codes_msg } = require('./shared/static.shared');
 
 
@@ -58,7 +58,7 @@ app.use("/api", cors(corsOption), limit, require("./router/index.router"));
 /* to handle the not found apis*/
 app.use("/", (req, res, next) => {
   console.log({ path: req?._parsedUrl });
-  responseError(res, status_codes_msg.API_NOT_FOUND);
+  failure(res, status_codes_msg.API_NOT_FOUND);
 });
 
 /* to handle the error*/
@@ -66,7 +66,7 @@ app.use((err, req, res, next) => {
   if (!err) {
     return next;
   };
-  responseError(res, new Error(err));
+  failure(res, new Error(err));
 });
 
 

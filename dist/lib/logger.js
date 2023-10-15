@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { constants } from "./constants.js";
 export function LoggerClass(base) {
     return class extends base {
         logFolderAlreadyExists(folderName) {
@@ -15,6 +16,12 @@ export function LoggerClass(base) {
         ;
         logInvalidTemplate(value, type = "template") {
             return `\nInvalid ${type} option ${chalk.blue(value)}\n`;
+        }
+        ;
+        logModuleNameNotProvided() {
+            return `\nPlease specify the module name
+      ${constants.command} ${chalk.yellow('create-module')} ${chalk.blue('< module name >')}\nFor example:
+      ${constants.command} ${chalk.yellow('create-module')} ${chalk.blue('user')}\n`;
         }
         ;
     };

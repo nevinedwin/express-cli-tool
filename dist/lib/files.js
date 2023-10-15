@@ -2,6 +2,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
 import { error } from 'console';
+import { constants } from './constants.js';
 export function File(base) {
     return class extends base {
         __filename;
@@ -38,15 +39,14 @@ export function File(base) {
         ;
         checkFileExists(source, destination) {
             try {
-                const newDestination = destination.slice(0, destination.lastIndexOf("/"));
-                if (newDestination !== source && fs.existsSync(destination)) {
-                    return [null, true];
-                }
-                ;
-                return [null, false];
+                const newDestination = destination;
+                // if (newDestination !== source && fs.existsSync(destination)) {
+                //   return [null, true];
+                // };
+                return { isExists: false };
             }
             catch (er) {
-                return [er];
+                return { isExists: true, error };
             }
             ;
         }
@@ -153,8 +153,40 @@ export function File(base) {
                 return { status: true, data: version };
             }
             catch (error) {
-                console.log(error);
                 return { status: false, error };
+            }
+            ;
+        }
+        ;
+        async checkModuleExists(source, isModel = false) {
+            try {
+                const folderArray = ['controller', 'helper', 'router'];
+                if (isModel)
+                    folderArray.push('model');
+                console.log(folderArray.length);
+                console.log(folderArray);
+                const { isExists, error } = this.checkFileExists(source, source);
+                if (error)
+                    throw error;
+            }
+            catch (error) {
+                return { error, isExists: true };
+            }
+            ;
+        }
+        ;
+        async createModel(modelName, destination, type) {
+            try {
+                const template = constants.modelTemplate(modelName, type);
+                if (!fs.existsSync(`${destination}/model`)) {
+                    fs.mkdirSync(`${destination}/model`);
+                }
+                ;
+                await this.#writeFile(`${destination}/model/${modelName}.model.js`, template);
+                return { status: true };
+            }
+            catch (error) {
+                return { error, status: false };
             }
             ;
         }

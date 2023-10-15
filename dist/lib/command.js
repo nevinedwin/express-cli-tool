@@ -13,7 +13,7 @@ export class Command {
     ;
     initCommand() {
         program
-            .command('create [targetDir]')
+            .command('create-app [targetDir]')
             .description('For creating templated')
             .option('-t, --template [value]', "Initialize with a template")
             .option('-p, --port [value]', 'Initialize with port')

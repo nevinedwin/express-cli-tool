@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { constants } from "./constants.js";
 
 type Class = new (...args: any[]) => any;
 
@@ -21,5 +22,10 @@ export function LoggerClass<Base extends Class>(base: Base) {
       return `\nInvalid ${type} option ${chalk.blue(value)}\n`
     };
 
+    logModuleNameNotProvided() {
+      return `\nPlease specify the module name
+      ${constants.command} ${chalk.yellow('create-module')} ${chalk.blue('< module name >')}\nFor example:
+      ${constants.command} ${chalk.yellow('create-module')} ${chalk.blue('user')}\n`
+    };
   };
 };

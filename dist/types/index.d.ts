@@ -18,7 +18,10 @@ declare const Main_base: {
             err?: NodeJS.ErrnoException | null | undefined;
             data?: boolean | undefined;
         }>;
-        checkFileExists(source: string, destination: string): any[];
+        checkFileExists(source: string, destination: string): {
+            error?: any;
+            isExists: boolean;
+        };
         checkFolderContains(templateName: string, destination: string): any[];
         copyTheDBFile(templateName?: string, dbname?: string): unknown[];
         getTemplatePath(libPath: string, templateName: string): string;
@@ -32,6 +35,14 @@ declare const Main_base: {
             error?: any;
             data?: string | undefined;
         }>;
+        checkModuleExists(source: string, isModel?: boolean): Promise<{
+            error: unknown;
+            isExists: boolean;
+        } | undefined>;
+        createModel(modelName: string, destination: string, type: string): Promise<{
+            error?: any;
+            status: boolean;
+        }>;
     };
 } & {
     new (...args: any[]): {
@@ -39,6 +50,7 @@ declare const Main_base: {
         logFolderAlreadyExists(folderName: string): string;
         logFolderConflicts(path: string, folderList: [string]): string;
         logInvalidTemplate(value: string | number, type?: string): string;
+        logModuleNameNotProvided(): string;
     };
 } & {
     new (...args: any[]): {

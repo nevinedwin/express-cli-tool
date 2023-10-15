@@ -19,7 +19,10 @@ export declare function File<Base extends Class>(base: Base): {
             err?: NodeJS.ErrnoException | null;
             data?: boolean;
         }>;
-        checkFileExists(source: string, destination: string): Array<any>;
+        checkFileExists(source: string, destination: string): {
+            error?: any;
+            isExists: boolean;
+        };
         checkFolderContains(templateName: string, destination: string): Array<any>;
         copyTheDBFile(templateName?: string, dbname?: string): unknown[];
         getTemplatePath(libPath: string, templateName: string): string;
@@ -32,6 +35,14 @@ export declare function File<Base extends Class>(base: Base): {
             status: boolean;
             error?: any;
             data?: string;
+        }>;
+        checkModuleExists(source: string, isModel?: boolean): Promise<{
+            error: unknown;
+            isExists: boolean;
+        } | undefined>;
+        createModel(modelName: string, destination: string, type: string): Promise<{
+            error?: any;
+            status: boolean;
         }>;
     };
 } & Base;
