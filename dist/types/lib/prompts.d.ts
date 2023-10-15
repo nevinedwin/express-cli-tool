@@ -9,8 +9,6 @@ type PromptType = {
 };
 type DBType = "mongo" | "dynamo" | "none" | string;
 type Class = new (...args: any[]) => any;
-export declare function prompt({ type, name, message, choices, validate, defaultValue, when }: PromptType): Promise<[any, string?]>;
-export declare function __toPlainText(txt: string): string;
 export declare function PromptClass<Base extends Class>(base: Base): {
     new (...args: any[]): {
         [x: string]: any;
@@ -21,4 +19,6 @@ export declare function PromptClass<Base extends Class>(base: Base): {
         promptDBName(dbName?: string, projectName?: string): Promise<[any, string?]>;
     };
 } & Base;
+export declare function prompt({ type, name, message, choices, validate, defaultValue, when }: PromptType): Promise<[any, string?]>;
+export declare function __toPlainText(txt: string): string;
 export {};

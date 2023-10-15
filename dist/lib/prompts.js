@@ -1,30 +1,6 @@
 import inquirer from 'inquirer';
 import { constants } from './constants.js';
 import chalk from 'chalk';
-export async function prompt({ type, name, message = "", choices = [], validate, defaultValue, when }) {
-    try {
-        const answer = await inquirer.prompt([
-            {
-                type,
-                name,
-                message,
-                choices,
-                validate,
-                default: defaultValue
-            }
-        ]);
-        return [null, answer[name]];
-    }
-    catch (error) {
-        return [error];
-    }
-    ;
-}
-;
-export function __toPlainText(txt) {
-    return txt.replace(/\u001b\[[0-9;]*m/g, '');
-}
-;
 export function PromptClass(base) {
     return class extends base {
         async promptCreateTemplate(newTemplate = "") {
@@ -141,3 +117,28 @@ export function PromptClass(base) {
         }
     };
 }
+;
+export async function prompt({ type, name, message = "", choices = [], validate, defaultValue, when }) {
+    try {
+        const answer = await inquirer.prompt([
+            {
+                type,
+                name,
+                message,
+                choices,
+                validate,
+                default: defaultValue
+            }
+        ]);
+        return [null, answer[name]];
+    }
+    catch (error) {
+        return [error];
+    }
+    ;
+}
+;
+export function __toPlainText(txt) {
+    return txt.replace(/\u001b\[[0-9;]*m/g, '');
+}
+;

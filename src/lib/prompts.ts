@@ -16,31 +16,6 @@ type DBType = "mongo" | "dynamo" | "none" | string;
 
 type Class = new (...args: any[]) => any;
 
-export async function prompt({ type, name, message = "", choices = [], validate, defaultValue, when }: PromptType): Promise<[any, string?]> {
-  try {
-    const answer = await inquirer.prompt([
-      {
-        type,
-        name,
-        message,
-        choices,
-        validate,
-        default: defaultValue
-      }
-    ]);
-    return [null, answer[name]];
-  } catch (error) {
-    return [error]
-  };
-};
-
-
-export function __toPlainText(txt: string): string {
-  return txt.replace(/\u001b\[[0-9;]*m/g, '');
-};
-
-
-
 export function PromptClass<Base extends Class>(base: Base) {
   return class extends base {
 
@@ -142,4 +117,28 @@ export function PromptClass<Base extends Class>(base: Base) {
     }
   };
 
-}
+};
+
+
+export async function prompt({ type, name, message = "", choices = [], validate, defaultValue, when }: PromptType): Promise<[any, string?]> {
+  try {
+    const answer = await inquirer.prompt([
+      {
+        type,
+        name,
+        message,
+        choices,
+        validate,
+        default: defaultValue
+      }
+    ]);
+    return [null, answer[name]];
+  } catch (error) {
+    return [error]
+  };
+};
+
+
+export function __toPlainText(txt: string): string {
+  return txt.replace(/\u001b\[[0-9;]*m/g, '');
+};

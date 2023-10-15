@@ -54,9 +54,7 @@ export function File<Base extends Class>(base: Base) {
 
 
     checkFolderContains(templateName: string, destination: string): Array<any> {
-
       try {
-
         if (!fs.existsSync(destination)) {
           return [null, []]
         };
@@ -104,31 +102,34 @@ export function File<Base extends Class>(base: Base) {
       return `${libPath.slice(0, libPath.lastIndexOf("/lib"))}/templates/${templateName}`
     };
 
-    createTemplate(templateName: string = "", destination: string = "", flag: boolean = false) {
-
-      let source: string = "";
-      if (!flag) {
-        // source = `${this.__dirname.slice(0, this.__dirname.lastIndexOf("\lib"))}/templates/${templateName}`;
-        source = this.getTemplatePath(this.__dirname, templateName);
-      } else {
-        source = templateName;
-      };
-
-      if (!fs.existsSync(destination)) {
-        fs.mkdirSync(destination);
-      };
-
-      const files = fs.readdirSync(source);
-      for (let i = 0; i < files.length; i++) {
-        const sourcePath = path.join(source, files[i]);
-        const destinationPath = path.join(destination, files[i]);
-
-        if (fs.statSync(sourcePath).isDirectory()) {
-          this.createTemplate(sourcePath, destinationPath, true);
+    createTemplate(templateName: string = "", destination: string = "", isExactTemplatePath: boolean = false) {
+      try {
+        let source: string = "";
+        if (!isExactTemplatePath) {
+          source = this.getTemplatePath(this.__dirname, templateName);
         } else {
-          fs.copyFileSync(sourcePath, destinationPath);
-        }
-      };
+          source = templateName;
+        };
+
+        if (!fs.existsSync(destination)) {
+          fs.mkdirSync(destination);
+        };
+
+        const files = fs.readdirSync(source);
+        for (let i = 0; i < files.length; i++) {
+          const sourcePath = path.join(source, files[i]);
+          const destinationPath = path.join(destination, files[i]);
+
+          if (fs.statSync(sourcePath).isDirectory()) {
+            this.createTemplate(sourcePath, destinationPath, true);
+          } else {
+            fs.copyFileSync(sourcePath, destinationPath);
+          }
+        };
+      } catch (error) {
+        console.log(error);
+        process.exit(1);
+      }
     };
 
     async createDBFile(destination: string, dbType: DBType) {
@@ -141,6 +142,20 @@ export function File<Base extends Class>(base: Base) {
       };
 
       readResult.data && await this.#writeFile(newDestination, readResult.data);
+    };
+
+    async readPackageJSON(): Promise<{ status: boolean, error?: any, data?: string }> {
+      try {
+        const source = `${this.__dirname.slice(0, this.__dirname.lastIndexOf('dist'))}package.json`;
+        const fileContent = await this.#readFile(source);
+        if (fileContent.err || !fileContent.data)
+          throw fileContent.err;
+        const version = JSON.parse(fileContent.data).version;
+        return { status: true, data: version };
+      } catch (error) {
+        console.log(error);
+        return { status: false, error };
+      };
     };
   };
 };
