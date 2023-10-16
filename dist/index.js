@@ -112,6 +112,7 @@ export class Main extends File(LoggerClass(PromptClass(class {
                     throw modelCreation.error;
             }
             ;
+            process.exit(0);
         }
         catch (er) {
             console.log(er);
@@ -138,7 +139,6 @@ export class Main extends File(LoggerClass(PromptClass(class {
             const fileContent = await super.readPackageJSON();
             if (!fileContent.status)
                 throw fileContent.error;
-            console.log(fileContent.data);
             process.exit(0);
         }
         catch (error) {

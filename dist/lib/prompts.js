@@ -69,14 +69,8 @@ export function PromptClass(base) {
         ;
         async promptChooseDB(db = "") {
             try {
-                let flag = false;
-                if (db && !constants.db.includes(db)) {
-                    flag = true;
-                    throw `Invalid DB ${(db)}`;
-                }
-                ;
                 let dbConfig = db;
-                if (!db || flag) {
+                if (!db) {
                     const [e, newDb] = await prompt({
                         name: "db",
                         type: "list",

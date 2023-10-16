@@ -75,13 +75,8 @@ export function PromptClass<Base extends Class>(base: Base) {
     };
     async promptChooseDB(db: DBType = ""): Promise<[any, DBType?]> {
       try {
-        let flag = false;
-        if (db && !constants.db.includes(db)) {
-          flag = true;
-          throw `Invalid DB ${(db)}`
-        };
         let dbConfig: DBType = db;
-        if (!db || flag) {
+        if (!db ) {
           const [e, newDb]: [any, string?] = await prompt({
             name: "db",
             type: "list",

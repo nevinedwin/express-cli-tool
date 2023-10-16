@@ -133,6 +133,7 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
         if (modelCreation.error) throw modelCreation.error;
       };
 
+      process.exit(0);
     } catch (er) {
       console.log(er);
       process.exit(1);
@@ -153,7 +154,6 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
     try {
       const fileContent = await super.readPackageJSON()
       if (!fileContent.status) throw fileContent.error;
-      console.log(fileContent.data);
       process.exit(0);
     } catch (error) {
       console.log(error);
@@ -185,3 +185,4 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
 // ------------starting point------------ //
 const cli = new Command();
 cli.prs();
+

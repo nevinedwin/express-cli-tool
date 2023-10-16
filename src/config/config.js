@@ -4,6 +4,5 @@ export const config = {
     uri: "",
     type: ""
   },
-  appName: "",
-  port: ""
+  appName: ""
 };
