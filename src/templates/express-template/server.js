@@ -13,7 +13,7 @@ const { status_codes_msg } = require('./shared/static.shared');
 
 const app = express();
 
-const port = process.env.PORT || 8081;
+const port = 8081;
 
 app.use(
   express.json({

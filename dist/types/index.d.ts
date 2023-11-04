@@ -40,13 +40,23 @@ declare const Main_base: {
             error: unknown;
             isExists: boolean;
         } | undefined>;
-        createModel(modelName: string, destination: string, type: string): Promise<{
-            error?: any;
-            status: boolean;
-        }>;
         createModuleFiles(createModuleFilesParams: CreateModuleFilesType): Promise<{
             error?: any;
             status: boolean;
+        }>;
+        assignPort(port: number, destination: string): Promise<{
+            status: boolean;
+            error?: undefined;
+        } | {
+            status: boolean;
+            error: unknown;
+        }>;
+        assignDBName(dbName: string, destination: string): Promise<{
+            status: boolean;
+            error?: undefined;
+        } | {
+            status: boolean;
+            error: unknown;
         }>;
     };
 } & {

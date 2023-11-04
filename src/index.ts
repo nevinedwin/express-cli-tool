@@ -106,6 +106,7 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
       };
 
       super.createTemplate(this.template, this.destination);
+      if (this.port) await super.assignPort(this.port, this.destination);
       const spinner = ora('Installing basic npm packages...').start();
       const isInstallSuccess: NpmInstallType = await this.#npmInstall();
 
@@ -119,18 +120,20 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
       if (constants.db.includes(this.db) && this.db !== 'none') {
         super.createDBFile(this.destination, this.db);
         const packageName = constants.dbPackages[this.db];
-        const spinner = ora(`Installing packages for db`).start();
+        const spinner = ora(`Configuring database`).start();
         const dbPackage = await this.#npmInstall(packageName);
 
         if (!dbPackage.status) {
-          spinner.fail('Intallation failed');
+          spinner.fail('Configuration failed');
           throw dbPackage.error;
         };
 
-        spinner.succeed()
+        spinner.succeed("DB Configured success.")
 
-        const modelCreation = await super.createModel('test', this.destination, this.db);
+        const modelCreation = await super.createModuleFiles({ moduleName: 'test', destination: this.destination, modelType: this.db, moduleType: 'model' });
+        const helperCreation = await super.createModuleFiles({ moduleName: 'test', destination: this.destination, modelType: this.db, moduleType: 'helper' });
         if (modelCreation.error) throw modelCreation.error;
+        await super.assignDBName(this.dbName, this.destination);
       };
 
       process.exit(0);
@@ -164,6 +167,7 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
     try {
       const fileContent = await super.readPackageJSON()
       if (!fileContent.status) throw fileContent.error;
+      console.log(fileContent.data);
       process.exit(0);
     } catch (error) {
       console.log(error);

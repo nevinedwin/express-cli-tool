@@ -175,22 +175,7 @@ export function File(base) {
             ;
         }
         ;
-        async createModel(modelName, destination, type) {
-            try {
-                const template = constants.modelTemplate(modelName, type);
-                if (!fs.existsSync(`${destination}/model`)) {
-                    fs.mkdirSync(`${destination}/model`);
-                }
-                ;
-                await this.#writeFile(`${destination}/model/${modelName}.model.js`, template);
-                return { status: true };
-            }
-            catch (error) {
-                return { error, status: false };
-            }
-            ;
-        }
-        ;
+        // Function for creating all modules
         async createModuleFiles(createModuleFilesParams) {
             try {
                 const { moduleType, moduleName, destination, modelType = "" } = createModuleFilesParams;
@@ -198,7 +183,7 @@ export function File(base) {
                     controller: constants.controllerTemplate(moduleName),
                     model: constants.modelTemplate(moduleName, modelType),
                     router: constants.routerTemplate(moduleName),
-                    helper: constants.helperTemplate(moduleName)
+                    helper: constants.helperTemplate(moduleName, modelType)
                 };
                 const template = chooseTemplete[moduleType];
                 if (!fs.existsSync(`${destination}/${moduleType}`)) {
@@ -206,6 +191,63 @@ export function File(base) {
                 }
                 ;
                 await this.#writeFile(`${destination}/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`, template);
+                return { status: true };
+            }
+            catch (error) {
+                return { status: false, error };
+            }
+            ;
+        }
+        ;
+        // Assigning port to the application
+        async assignPort(port, destination) {
+            try {
+                const source = `${destination}/server.js`;
+                const response = await this.#readFile(source);
+                if (response.error)
+                    throw response.error;
+                const data = response.data?.replace(/const\s+port\s*=\s*\d+\s*?;?/, `const port = ${port};`);
+                if (data) {
+                    const writeResp = await this.#writeFile(source, data);
+                    if (writeResp.err)
+                        throw writeResp.err;
+                }
+                ;
+                return { status: true };
+            }
+            catch (error) {
+                return { status: false, error };
+            }
+            ;
+        }
+        ;
+        async assignDBName(dbName, destination) {
+            try {
+                const source = `${destination}/shared/db.shared.js`;
+                const response = await this.#readFile(source);
+                if (response.err)
+                    throw response.err;
+                const data = response.data?.replace(/const\s+dbName\s*=\s*[^;]+\s*?;?/, `const dbName = "${dbName}";`);
+                if (data) {
+                    const writeResp = await this.#writeFile(source, data);
+                    if (writeResp.err)
+                        throw writeResp.err;
+                }
+                ;
+                // read the server.js file
+                const server = await this.#readFile(`${destination}/server.js`);
+                if (server.err)
+                    throw server.err;
+                const prevLine = "const { connectDatabase } = require('./shared/db.shared');";
+                const refLine = '\n\nconst app = express();';
+                const newLine = '\n\nconnectDatabase()';
+                const dbConnectionCall = server.data?.replace(/const\s+app\s*=\s*express\(\);?/, prevLine + refLine + newLine);
+                if (dbConnectionCall) {
+                    const writeRespNew = await this.#writeFile(`${destination}/server.js`, dbConnectionCall);
+                    if (writeRespNew.err)
+                        throw writeRespNew.err;
+                }
+                ;
                 return { status: true };
             }
             catch (error) {

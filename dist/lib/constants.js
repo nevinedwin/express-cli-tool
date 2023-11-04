@@ -86,9 +86,12 @@ export const constants = {
     
     module.exports = app;`;
     },
-    helperTemplate: (moduleName) => {
+    helperTemplate: (moduleName, db = '') => {
         const name = _to_camelCase(moduleName);
-        return `exports.get${name}Helper = () => {
+        const _l_name = name.toLowerCase();
+        return `
+    ${db === "mongo" && `const ${_l_name}Model = require("../model/${_l_name}.model");`}
+    exports.get${name}Helper = () => {
       return "Test Data";
     };
     
@@ -97,6 +100,7 @@ export const constants = {
     };
     
     exports.post${name}Helper = () => {
+      ${db === "mongo" && `new ${_l_name}Model({data: "test"}).save();`}
       return "Test Data";
     };
     

@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
-const { config } = require('./config');
+
+const dbName = "";
+const uri = `mongodb://localhost:27017/${dbName}`;
 
 const connectDatabase = () => {
   return new Promise(async (resolve, reject) => {
@@ -7,9 +9,9 @@ const connectDatabase = () => {
     mongoose.set("strictQuery", true);
 
     mongoose
-      .connect(config.database.uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
+      .connect(uri, {
+        // useNewUrlParser: true,
+        // useUnifiedTopology: true,
         connectTimeoutMS: 10000,
       })
       .then(() => {
