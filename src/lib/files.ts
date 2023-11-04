@@ -6,6 +6,13 @@ import { constants } from './constants.js';
 
 type Class = new (...args: any[]) => any;
 type DBType = "mongo" | "dynamo" | "none" | string;
+export type CreateModuleFilesType = {
+  moduleType: "controller" | "model" | "router" | "helper",
+  moduleName: string,
+  destination: string,
+  modelType?: DBType
+};
+
 
 export function File<Base extends Class>(base: Base) {
   return class extends base {
@@ -182,6 +189,31 @@ export function File<Base extends Class>(base: Base) {
         return { status: true }
       } catch (error) {
         return { error, status: false };
+      };
+    };
+
+    async createModuleFiles(createModuleFilesParams: CreateModuleFilesType): Promise<{ error?: any, status: boolean }> {
+      try {
+        const { moduleType, moduleName, destination, modelType = "" } = createModuleFilesParams;
+
+        const chooseTemplete = {
+          controller: constants.controllerTemplate(moduleName),
+          model: constants.modelTemplate(moduleName, modelType),
+          router: constants.routerTemplate(moduleName),
+          helper: constants.helperTemplate(moduleName)
+        };
+
+        const template: string = chooseTemplete[moduleType];
+
+        if (!fs.existsSync(`${destination}/${moduleType}`)) {
+          fs.mkdirSync(`${destination}/${moduleType}`);
+        };
+
+        await this.#writeFile(`${destination}/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`, template);
+
+        return { status: true };
+      } catch (error) {
+        return { status: false, error };
       };
     };
 

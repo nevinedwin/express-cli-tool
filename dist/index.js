@@ -125,7 +125,16 @@ export class Main extends File(LoggerClass(PromptClass(class {
         try {
             if (!action)
                 throw super.logModuleNameNotProvided();
-            super.checkModuleExists(this.destination, true);
+            const modules = ["router", "controller", "helper"];
+            const promises = modules.map(async (eachItem) => {
+                const params = {
+                    moduleType: eachItem,
+                    moduleName: action,
+                    destination: this.currentPath
+                };
+                return super.createModuleFiles(params);
+            });
+            await Promise.all(promises);
         }
         catch (error) {
             console.log(error);

@@ -1,4 +1,7 @@
 import chalk from "chalk";
+export const _to_camelCase = (value) => {
+    return value[0].toUpperCase() + value.slice(1, value.length).toLowerCase();
+};
 export const constants = {
     command: "express-bp",
     templateChoices: [
@@ -26,7 +29,8 @@ export const constants = {
         "mongo": "mongoose",
         "dynamo": "aws-sdk"
     },
-    controllerTemplate: (name) => {
+    controllerTemplate: (moduleName) => {
+        const name = _to_camelCase(moduleName);
         return `"use strict";
 
     const { get${name}Helper, put${name}Helper, post${name}Helper, delete${name}Helper } = require("../helper/${name.toLowerCase()}.helper");
@@ -69,7 +73,8 @@ export const constants = {
       };
     };`;
     },
-    routerTemplate: (name) => {
+    routerTemplate: (moduleName) => {
+        const name = _to_camelCase(moduleName);
         return `const express = require('express');
     const { get${name}Controller, put${name}Controller, post${name}Controller, delete${name}Controller } = require('../controller/${name.toLowerCase()}.controller');
     const app = express();
@@ -81,7 +86,8 @@ export const constants = {
     
     module.exports = app;`;
     },
-    helperTemplate: (name) => {
+    helperTemplate: (moduleName) => {
+        const name = _to_camelCase(moduleName);
         return `exports.get${name}Helper = () => {
       return "Test Data";
     };

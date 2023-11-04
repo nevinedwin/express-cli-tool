@@ -191,6 +191,29 @@ export function File(base) {
             ;
         }
         ;
+        async createModuleFiles(createModuleFilesParams) {
+            try {
+                const { moduleType, moduleName, destination, modelType = "" } = createModuleFilesParams;
+                const chooseTemplete = {
+                    controller: constants.controllerTemplate(moduleName),
+                    model: constants.modelTemplate(moduleName, modelType),
+                    router: constants.routerTemplate(moduleName),
+                    helper: constants.helperTemplate(moduleName)
+                };
+                const template = chooseTemplete[moduleType];
+                if (!fs.existsSync(`${destination}/${moduleType}`)) {
+                    fs.mkdirSync(`${destination}/${moduleType}`);
+                }
+                ;
+                await this.#writeFile(`${destination}/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`, template);
+                return { status: true };
+            }
+            catch (error) {
+                return { status: false, error };
+            }
+            ;
+        }
+        ;
     };
 }
 ;

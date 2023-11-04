@@ -6,6 +6,12 @@
 import { error } from 'console';
 type Class = new (...args: any[]) => any;
 type DBType = "mongo" | "dynamo" | "none" | string;
+export type CreateModuleFilesType = {
+    moduleType: "controller" | "model" | "router" | "helper";
+    moduleName: string;
+    destination: string;
+    modelType?: DBType;
+};
 export declare function File<Base extends Class>(base: Base): {
     new (...args: any[]): {
         [x: string]: any;
@@ -41,6 +47,10 @@ export declare function File<Base extends Class>(base: Base): {
             isExists: boolean;
         } | undefined>;
         createModel(modelName: string, destination: string, type: string): Promise<{
+            error?: any;
+            status: boolean;
+        }>;
+        createModuleFiles(createModuleFilesParams: CreateModuleFilesType): Promise<{
             error?: any;
             status: boolean;
         }>;

@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 /// <reference types="node" resolution-mode="require"/>
+import { CreateModuleFilesType } from "./lib/files.js";
 declare const Main_base: {
     new (...args: any[]): {
         [x: string]: any;
@@ -40,6 +41,10 @@ declare const Main_base: {
             isExists: boolean;
         } | undefined>;
         createModel(modelName: string, destination: string, type: string): Promise<{
+            error?: any;
+            status: boolean;
+        }>;
+        createModuleFiles(createModuleFilesParams: CreateModuleFilesType): Promise<{
             error?: any;
             status: boolean;
         }>;

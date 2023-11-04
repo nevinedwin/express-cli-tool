@@ -18,7 +18,7 @@
 
 import { PromptClass } from "./lib/prompts.js";
 import path from "path";
-import { File } from "./lib/files.js";
+import { CreateModuleFilesType, File } from "./lib/files.js";
 import { LoggerClass } from "./lib/logger.js";
 import { constants } from "./lib/constants.js";
 import { ExecException, exec } from "child_process";
@@ -33,7 +33,7 @@ type NpmInstallType = {
 };
 
 
-type DBType = "mongo" | "dynamo" | "none" | string;
+type DBType = "mongo" | "dynamo" | "none" | "";
 
 export class Main extends File(LoggerClass(PromptClass(class { }))) {
 
@@ -97,7 +97,7 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
 
       const [er, db] = await super.promptChooseDB(options.database);
       if (er || !db) throw er || "PromptError";
-      this.db = db;
+      this.db = db as DBType;
 
       if (this.db && this.db !== "none") {
         const [e, dbName] = await super.promptDBName(options.databaseName, this.folderName);
@@ -143,7 +143,17 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
   async createModule(action: string) {
     try {
       if (!action) throw super.logModuleNameNotProvided();
-      super.checkModuleExists(this.destination, true);
+      const modules = ["router", "controller", "helper"];
+      const promises = modules.map(async (eachItem) => {
+        const params = {
+          moduleType: eachItem as CreateModuleFilesType['moduleType'],
+          moduleName: action,
+          destination: this.currentPath
+        };
+        return super.createModuleFiles(params);
+      });
+
+      await Promise.all(promises);
     } catch (error) {
       console.log(error);
       process.exit(1);
