@@ -53,7 +53,7 @@ export class Command {
     }
     ;
     prs() {
-        program.parse(this.main.main);
+        program.parse(this.main.args);
     }
     ;
 }
