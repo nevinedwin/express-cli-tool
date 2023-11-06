@@ -24,6 +24,44 @@ export function LoggerClass(base) {
       ${constants.command} ${chalk.yellow('create-module')} ${chalk.blue('user')}\n`;
         }
         ;
+        logDbInfo() {
+            return `\n
+      Currently, we support only ${chalk.green('MongoDB')} as the database system.
+      We are actively working on introducing support for ${chalk.red('DynamoDB')}, 
+      it will be available in upcoming versions of the Express Boiler Plate (express-bp) CLI Tool.
+      `;
+        }
+        ;
+        logTemplateInfo() {
+            return `\n
+      Currently, we support only ${chalk.yellow('Express-JS')} template.
+      We are actively working on introducing ${chalk.blue('Express-TS')} template, 
+      it will be available in upcoming versions of the Express Boiler Plate (express-bp) CLI Tool.
+      `;
+        }
+        ;
+        logModuleResponse(error) {
+            let moduleType = "";
+            let isError = false;
+            error.forEach(each => {
+                if (!each.status) {
+                    moduleType += `${each.moduleType} `;
+                    isError = true;
+                }
+            });
+            if (isError) {
+                return {
+                    status: false, message: `\nModule ${chalk.red(error[0].moduleName)} is already exists in ${chalk.red(moduleType)}.
+        `
+                };
+            }
+            ;
+            return {
+                status: true, message: `\nModule ${chalk.green(error[0].moduleName)} created successfully.
+      `
+            };
+        }
+        ;
     };
 }
 ;

@@ -9,13 +9,14 @@ export class Command {
         this.showVersionCommand();
         this.createComponentCommand();
         this.helpCustom();
+        this.changeVersion();
     }
     ;
     initCommand() {
         program
             .command('create-app [targetDir]')
             .description('For creating templated')
-            .option('-t, --template [value]', "Initialize with a template")
+            .option('-t, --template [value]', "Initialize with a template [expressjs, expressts]")
             .option('-p, --port [value]', 'Initialize with port')
             .option('-d, --database [value]', 'Initalize with a database. It accepts ("monogo", "dynamo", "none")')
             .option('-dn, --databaseName [value]', 'Assign name to Database')
@@ -38,6 +39,15 @@ export class Command {
             .option('-v, --version', 'Shows version')
             .action(async () => {
             await this.main.showVerison();
+        });
+    }
+    ;
+    changeVersion() {
+        program
+            .command('change-version')
+            .description('Change the version of App')
+            .action(async () => {
+            await this.main.changeUserAppVersion();
         });
     }
     ;

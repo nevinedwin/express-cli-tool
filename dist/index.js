@@ -31,6 +31,7 @@ export class Main extends File(LoggerClass(PromptClass(class {
     dbName;
     db;
     destination;
+    isVersioningEnable;
     constructor(pss) {
         super();
         this.args = pss.argv;
@@ -41,6 +42,7 @@ export class Main extends File(LoggerClass(PromptClass(class {
         this.dbName = "";
         this.db = "";
         this.destination = "";
+        this.isVersioningEnable = true;
     }
     ;
     async createBoilerPlate(targetDir = "", options) {
@@ -67,6 +69,17 @@ export class Main extends File(LoggerClass(PromptClass(class {
             if (e || !templateName)
                 throw e || "Prompting Error";
             this.template = templateName;
+            // ----------Remove the below line of code when Express-ts is introduced
+            while (this.template === 'express-ts-template') {
+                console.log(super.logTemplateInfo());
+                options.template = "";
+                const [e, templateName] = await super.promptCreateTemplate(options?.template);
+                if (e || !templateName)
+                    throw e || "Prompting Error";
+                this.template = templateName;
+            }
+            ;
+            // --------------
             const [ef, folderExists] = super.checkFolderContains(this.template, this.destination);
             if (ef)
                 throw ef;
@@ -80,6 +93,17 @@ export class Main extends File(LoggerClass(PromptClass(class {
             if (er || !db)
                 throw er || "PromptError";
             this.db = db;
+            // ----------Remove this line of code when introduce dynamodb
+            while (this.db === 'dynamo') {
+                console.log(super.logDbInfo());
+                options.database = "";
+                const [er, db] = await super.promptChooseDB(options.database);
+                if (er || !db)
+                    throw er || "PromptError";
+                this.db = db;
+            }
+            ;
+            // -----------
             if (this.db && this.db !== "none") {
                 const [e, dbName] = await super.promptDBName(options.databaseName, this.folderName);
                 if (e || !dbName)
@@ -90,6 +114,7 @@ export class Main extends File(LoggerClass(PromptClass(class {
             super.createTemplate(this.template, this.destination);
             if (this.port)
                 await super.assignPort(this.port, this.destination);
+            await super.changePackageJSON('name', this.destination, this.folderName);
             const spinner = ora('Installing basic npm packages...').start();
             const isInstallSuccess = await this.#npmInstall();
             if (!isInstallSuccess.status) {
@@ -109,11 +134,26 @@ export class Main extends File(LoggerClass(PromptClass(class {
                 }
                 ;
                 spinner.succeed("DB Configured success.");
-                const modelCreation = await super.createModuleFiles({ moduleName: 'test', destination: this.destination, modelType: this.db, moduleType: 'model' });
-                const helperCreation = await super.createModuleFiles({ moduleName: 'test', destination: this.destination, modelType: this.db, moduleType: 'helper' });
-                if (modelCreation.error)
+                const modelCreation = await super.createModuleFiles({
+                    moduleName: 'test',
+                    destination: this.destination,
+                    modelType: this.db,
+                    moduleType: 'model',
+                    isVersioning: this.isVersioningEnable
+                });
+                if (!modelCreation.status)
                     throw modelCreation.error;
                 await super.assignDBName(this.dbName, this.destination);
+                const helperCreation = await super.createModuleFiles({
+                    moduleName: 'test',
+                    destination: this.destination,
+                    modelType: this.db,
+                    moduleType: 'helper',
+                    isVersioning: this.isVersioningEnable,
+                    ignoreExistance: true
+                });
+                if (!helperCreation.status)
+                    throw helperCreation.error;
             }
             ;
             process.exit(0);
@@ -130,15 +170,29 @@ export class Main extends File(LoggerClass(PromptClass(class {
             if (!action)
                 throw super.logModuleNameNotProvided();
             const modules = ["router", "controller", "helper"];
+            const findDatabaseResp = await super.findDatabase(this.currentPath);
+            console.log(findDatabaseResp);
+            if (findDatabaseResp.status) {
+                modules.push('model');
+            }
+            ;
+            console.log(modules);
             const promises = modules.map(async (eachItem) => {
                 const params = {
                     moduleType: eachItem,
                     moduleName: action,
-                    destination: this.currentPath
+                    destination: this.currentPath,
+                    isVersioning: this.isVersioningEnable,
+                    modelType: findDatabaseResp.data
                 };
                 return super.createModuleFiles(params);
             });
-            await Promise.all(promises);
+            const data = await Promise.all(promises);
+            const logResult = super.logModuleResponse(data);
+            if (!logResult.status)
+                throw logResult.message;
+            console.log(logResult.message);
+            process.exit(0);
         }
         catch (error) {
             console.log(error);
@@ -179,6 +233,25 @@ export class Main extends File(LoggerClass(PromptClass(class {
             return { status: true, stdout: installNpm.stdout, stderr: installNpm.stderr };
         }
         ;
+    }
+    ;
+    async changeUserAppVersion() {
+        try {
+            // change the version in package.json; update major version if 1=>2;
+            const changeVersion = await super.changePackageJSON('version', this.currentPath);
+            if (!changeVersion.status)
+                throw changeVersion?.error;
+            // change the router version;
+            if (this.isVersioningEnable) {
+                const changeRounterVersion = await super.updateRouterVersion(this.currentPath);
+            }
+            ;
+            process.exit(0);
+        }
+        catch (error) {
+            console.log(error);
+            process.exit(1);
+        }
     }
     ;
 }

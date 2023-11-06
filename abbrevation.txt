@@ -39,3 +39,13 @@ prompts.ts------
 
 constants.ts-----
   tc   : template choices
+
+
+configsample 
+
+{
+  appName: "",
+  isVersioningEnable: true,
+  database: "monogo",
+  
+}

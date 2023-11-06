@@ -4,6 +4,7 @@ export declare class Command {
     private initCommand;
     private createComponentCommand;
     private showVersionCommand;
+    private changeVersion;
     private helpCustom;
     prs(): void;
 }
