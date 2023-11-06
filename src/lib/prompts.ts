@@ -1,6 +1,7 @@
 import inquirer from 'inquirer';
 import { constants } from './constants.js';
 import chalk from 'chalk';
+import { CommonReturnType } from './files.js';
 
 type PromptType = {
   type: "input" | "number" | "confirm" | "list" | "rawlist" | "expand" | "checkbox" | "password" | "editor";
@@ -19,7 +20,7 @@ type Class = new (...args: any[]) => any;
 export function PromptClass<Base extends Class>(base: Base) {
   return class extends base {
 
-    async promptCreateTemplate(newTemplate: string = ""): Promise<[any, string?]> {
+    async promptCreateTemplate(newTemplate: string = ""): Promise<CommonReturnType> {
       try {
         let template = newTemplate;
         if (!newTemplate) {
@@ -34,13 +35,13 @@ export function PromptClass<Base extends Class>(base: Base) {
           template = temp;
         }
         const templateName: string = constants.templates[__toPlainText(template)];
-        return [null, templateName];
-      } catch (e) {
-        return [e]
+        return { status: true, data: templateName };
+      } catch (error) {
+        return { status: false, error };
       };
     };
 
-    async PromptCreateFolder(): Promise<[any, string?]> {
+    async PromptCreateFolder(): Promise<CommonReturnType> {
       try {
         const [e, folderName]: [any, string?] = await prompt({
           name: "folder",
@@ -49,13 +50,13 @@ export function PromptClass<Base extends Class>(base: Base) {
           defaultValue: "first-app"
         })
         if (e || !folderName) throw e || "prompt Error";
-        return [null, folderName];
-      } catch (e) {
-        return [e];
+        return { status: true, data: folderName };
+      } catch (error) {
+        return { status: false, error };
       };
     };
 
-    async promptChoosePort(portParam: number = 0): Promise<[any, number?]> {
+    async promptChoosePort(portParam: number = 0): Promise<CommonReturnType> {
       try {
         let finalPort: number = portParam;
         if (portParam === 0) {
@@ -68,15 +69,15 @@ export function PromptClass<Base extends Class>(base: Base) {
           if (e || !port) throw e || "prompt Error";
           finalPort = parseInt(port, 10);
         }
-        return [null, finalPort];
+        return { status: true, data: finalPort };
       } catch (error) {
-        return [error]
+        return { status: false, error };
       };
     };
-    async promptChooseDB(db: DBType = ""): Promise<[any, DBType?]> {
+    async promptChooseDB(db: DBType = ""): Promise<CommonReturnType> {
       try {
         let dbConfig: DBType = db;
-        if (!db ) {
+        if (!db) {
           const [e, newDb]: [any, string?] = await prompt({
             name: "db",
             type: "list",
@@ -86,13 +87,13 @@ export function PromptClass<Base extends Class>(base: Base) {
           if (e || !newDb) throw e || "prompt Error"
           dbConfig = newDb;
         }
-        return [null, dbConfig]
+        return { status: true, data: dbConfig };
       } catch (error) {
-        return [error]
+        return { status: false, error };
       };
     };
 
-    async promptDBName(dbName: string = "", projectName: string = ""): Promise<[any, string?]> {
+    async promptDBName(dbName: string = "", projectName: string = ""): Promise<CommonReturnType> {
       try {
         let name: string = dbName;
         if (typeof dbName !== "string" || !dbName) {
@@ -105,9 +106,9 @@ export function PromptClass<Base extends Class>(base: Base) {
           if (e || !nameDB) throw e || "prompt Error"
           name = nameDB;
         }
-        return [null, name];
+        return { status: true, data: name };
       } catch (error) {
-        return [error]
+        return { status: false, error }
       }
     }
   };

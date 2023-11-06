@@ -63,7 +63,7 @@ export function File(base) {
         checkFolderContains(templateName, destination) {
             try {
                 if (!fs.existsSync(destination)) {
-                    return [null, []];
+                    return { status: true, data: [] };
                 }
                 ;
                 const templatePath = `${this.__dirname.slice(0, this.__dirname.lastIndexOf("\lib"))}/templates/${templateName}`;
@@ -78,28 +78,11 @@ export function File(base) {
                     ;
                 }
                 ;
-                return [null, duplicateFileArray];
+                return { status: true, data: duplicateFileArray };
             }
             catch (e) {
                 console.log(e);
-                return [e];
-            }
-        }
-        ;
-        copyTheDBFile(templateName = "", dbname = "") {
-            try {
-                const templatePath = this.__dirname.replace(/\/lib$/, `/templates/${templateName}`);
-                const databasePath = this.__dirname.replace(/\/lib$/, `/templates/dbtemplates/${dbname}.js`);
-                const destinationPath = path.join(templatePath, 'shared', 'db.shared.js');
-                if (!fs.existsSync(destinationPath)) {
-                    new Promise((resolve, reject) => {
-                        fs.copyFileSync(databasePath, destinationPath);
-                    });
-                }
-                return [null, true];
-            }
-            catch (error) {
-                return [error];
+                return { status: false, error: e };
             }
             ;
         }
@@ -141,17 +124,28 @@ export function File(base) {
             }
         }
         ;
+        // Function for creating db.shared.js
         async createDBFile(destination, dbType) {
-            const source = this.getTemplatePath(this.__dirname, `dbTemplates/${dbType}.config.js`);
-            const newDestination = this.#userPath(destination)._db_shared;
-            const readResult = await this.#readFile(source);
-            if (readResult.err || !readResult.data) {
-                return { status: false, error: readResult.err };
+            try {
+                // getting the db config template path
+                const source = this.getTemplatePath(this.__dirname, `dbTemplates/${dbType}.config.js`);
+                // geting the project path
+                const newDestination = this.#userPath(destination)._db_shared;
+                // reading db template
+                const readResult = await this.#readFile(source);
+                if (readResult.err || !readResult.data)
+                    throw readResult.err;
+                // writing db template
+                readResult.data && await this.#writeFile(newDestination, readResult.data);
+                return { status: true };
+            }
+            catch (error) {
+                return { status: false, error };
             }
             ;
-            readResult.data && await this.#writeFile(newDestination, readResult.data);
         }
         ;
+        // getting version from package.json
         async readPackageJSON() {
             try {
                 const source = `${this.__dirname.slice(0, this.__dirname.lastIndexOf('dist'))}package.json`;
@@ -171,7 +165,8 @@ export function File(base) {
         async createModuleFiles(createModuleFilesParams) {
             try {
                 const { moduleType, moduleName, destination, modelType = "", isVersioning = false, ignoreExistance = false } = createModuleFilesParams;
-                if (!ignoreExistance && fs.existsSync(`${destination}/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`)) {
+                if (!ignoreExistance &&
+                    fs.existsSync(`${destination}/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`)) {
                     throw `${moduleName} module is already exists.`;
                 }
                 ;
@@ -203,9 +198,13 @@ export function File(base) {
             ;
         }
         ;
+        // Function for importing router in V1/ version folder
         async #createRouterInVersionFolder({ source = "", moduleName = "", isVersioning = false }) {
             try {
-                const { version } = await this.getUserAppVersion(source);
+                const _guav = await this.getUserAppVersion(source);
+                if (!_guav.status)
+                    throw _guav.error;
+                const version = _guav.data;
                 let path;
                 if (isVersioning) {
                     path = `${source}/router/v${version}.router.js`;
@@ -320,7 +319,7 @@ export function File(base) {
                     throw readPackage?.err || "Error in reading package.json";
                 const parsedReadPackage = JSON.parse(readPackage.data);
                 const version = parseInt(parsedReadPackage.version);
-                return { status: true, version };
+                return { status: true, data: version };
             }
             catch (error) {
                 return { status: false, error };
@@ -338,6 +337,7 @@ export function File(base) {
             ;
         }
         ;
+        // Function for finding database in the project
         async findDatabase(source = "") {
             try {
                 const path = this.#userPath(source)._db_shared;

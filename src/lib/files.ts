@@ -88,10 +88,10 @@ export function File<Base extends Class>(base: Base) {
       });
     };
 
-    checkFolderContains(templateName: string, destination: string): Array<any> {
+    checkFolderContains(templateName: string, destination: string): CommonReturnType {
       try {
         if (!fs.existsSync(destination)) {
-          return [null, []]
+          return { status: true, data: [] }
         };
 
         const templatePath: string = `${this.__dirname.slice(0, this.__dirname.lastIndexOf("\lib"))}/templates/${templateName}`;
@@ -104,34 +104,16 @@ export function File<Base extends Class>(base: Base) {
 
         for (let _i = 0; _i < templateFiles.length; _i++) {
           if (setA.has(templateFiles[_i])) {
-            duplicateFileArray.push(templateFiles[_i])
+            duplicateFileArray.push(templateFiles[_i]);
           };
         };
 
-        return [null, duplicateFileArray]
+        return { status: true, data: duplicateFileArray };
       } catch (e) {
         console.log(e);
-        return [e]
-      }
-    };
-
-    copyTheDBFile(templateName: string = "", dbname: string = "") {
-      try {
-        const templatePath: string = this.__dirname.replace(/\/lib$/, `/templates/${templateName}`);
-        const databasePath: string = this.__dirname.replace(/\/lib$/, `/templates/dbtemplates/${dbname}.js`);
-        const destinationPath: string = path.join(templatePath, 'shared', 'db.shared.js');
-
-        if (!fs.existsSync(destinationPath)) {
-          new Promise((resolve, reject) => {
-            fs.copyFileSync(databasePath, destinationPath);
-          })
-        }
-        return [null, true];
-      } catch (error) {
-        return [error];
+        return { status: false, error: e };
       };
     };
-
 
     getTemplatePath(libPath: string, templateName: string): string {
       return `${libPath.slice(0, libPath.lastIndexOf("/lib"))}/templates/${templateName}`
@@ -167,18 +149,27 @@ export function File<Base extends Class>(base: Base) {
       }
     };
 
-    async createDBFile(destination: string, dbType: DBType) {
-      const source = this.getTemplatePath(this.__dirname, `dbTemplates/${dbType}.config.js`);
-      const newDestination = this.#userPath(destination)._db_shared;
+    // Function for creating db.shared.js
+    async createDBFile(destination: string, dbType: DBType): Promise<CommonReturnType> {
+      try {
+        // getting the db config template path
+        const source = this.getTemplatePath(this.__dirname, `dbTemplates/${dbType}.config.js`);
+        // geting the project path
+        const newDestination = this.#userPath(destination)._db_shared;
 
-      const readResult = await this.#readFile(source)
-      if (readResult.err || !readResult.data) {
-        return { status: false, error: readResult.err }
+        // reading db template
+        const readResult = await this.#readFile(source)
+        if (readResult.err || !readResult.data) throw readResult.err;
+
+        // writing db template
+        readResult.data && await this.#writeFile(newDestination, readResult.data);
+        return { status: true };
+      } catch (error) {
+        return { status: false, error };
       };
-
-      readResult.data && await this.#writeFile(newDestination, readResult.data);
     };
 
+    // getting version from package.json
     async readPackageJSON(): Promise<{ status: boolean, error?: any, data?: string }> {
       try {
         const source = `${this.__dirname.slice(0, this.__dirname.lastIndexOf('dist'))}package.json`;
@@ -193,11 +184,19 @@ export function File<Base extends Class>(base: Base) {
     };
 
     // Function for creating all modules
-    async createModuleFiles(createModuleFilesParams: CreateModuleFilesType): Promise<{ error?: any, status: boolean, moduleType: string, moduleName?: string }> {
+    async createModuleFiles(createModuleFilesParams: CreateModuleFilesType):
+      Promise<{ error?: any, status: boolean, moduleType: string, moduleName?: string }> {
       try {
-        const { moduleType, moduleName, destination, modelType = "", isVersioning = false, ignoreExistance = false } = createModuleFilesParams;
+        const { moduleType,
+          moduleName,
+          destination,
+          modelType = "",
+          isVersioning = false,
+          ignoreExistance = false
+        } = createModuleFilesParams;
 
-        if (!ignoreExistance && fs.existsSync(`${destination}/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`)) {
+        if (!ignoreExistance &&
+          fs.existsSync(`${destination}/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`)) {
           throw `${moduleName} module is already exists.`
         };
 
@@ -232,10 +231,19 @@ export function File<Base extends Class>(base: Base) {
       };
     };
 
-    async #createRouterInVersionFolder({ source = "", moduleName = "", isVersioning = false }: createRouterInVersionFolderType): Promise<{ status: boolean, error?: any }> {
+    // Function for importing router in V1/ version folder
+    async #createRouterInVersionFolder({
+      source = "",
+      moduleName = "",
+      isVersioning = false
+    }: createRouterInVersionFolderType): Promise<CommonReturnType> {
       try {
 
-        const { version } = await this.getUserAppVersion(source);
+        const _guav = await this.getUserAppVersion(source);
+        if (!_guav.status) throw _guav.error;
+
+        const version = _guav.data;
+        
         let path;
         if (isVersioning) {
           path = `${source}/router/v${version}.router.js`;
@@ -257,7 +265,7 @@ export function File<Base extends Class>(base: Base) {
     };
 
 
-    async customiseValue(source: string, updatedString: string = "", regex: RegExp): Promise<{ status: boolean, error?: any }> {
+    async customiseValue(source: string, updatedString: string = "", regex: RegExp): Promise<CommonReturnType> {
       try {
         const readSource = await this.#readFile(source);
         if (readSource.err || !readSource.data) throw readSource?.err || "Error in reading file";
@@ -272,7 +280,7 @@ export function File<Base extends Class>(base: Base) {
       };
     };
 
-    async assignPort(port: number, source: string): Promise<{ status: boolean, error?: any }> {
+    async assignPort(port: number, source: string): Promise<CommonReturnType> {
       try {
         const path = this.#userPath(source)._server;
         const regex = /const\s+port\s*=\s*\d+\s*?;?/;
@@ -285,7 +293,7 @@ export function File<Base extends Class>(base: Base) {
       };
     };
 
-    async assignDBName(dbName: string, source: string): Promise<{ status: boolean, error?: any }> {
+    async assignDBName(dbName: string, source: string): Promise<CommonReturnType> {
       try {
         const path = this.#userPath(source)._db_shared;
         const regex = /const\s+dbName\s*=\s*[^;]+\s*?;?/;
@@ -310,7 +318,7 @@ export function File<Base extends Class>(base: Base) {
       };
     };
 
-    async changePackageJSON(changeItem: 'name' | 'version' = 'name', destination: string = "", appName: string = ""): Promise<{ status: boolean, error?: any }> {
+    async changePackageJSON(changeItem: 'name' | 'version' = 'name', destination: string = "", appName: string = ""): Promise<CommonReturnType> {
       try {
         const source = this.#userPath(destination)['_package.json'];
         const readPackage = await this.#readFile(source);
@@ -330,20 +338,20 @@ export function File<Base extends Class>(base: Base) {
       };
     };
 
-    async getUserAppVersion(source: string = ""): Promise<{ status: boolean, error?: any, version?: number }> {
+    async getUserAppVersion(source: string = ""): Promise<CommonReturnType> {
       try {
         const path = this.#userPath(source)['_package.json'];
         const readPackage = await this.#readFile(path);
         if (readPackage.err || !readPackage.data) throw readPackage?.err || "Error in reading package.json";
         const parsedReadPackage = JSON.parse(readPackage.data);
         const version = parseInt(parsedReadPackage.version);
-        return { status: true, version };
+        return { status: true, data: version };
       } catch (error) {
         return { status: false, error };
       };
     };
 
-    async updateRouterVersion(source: string = ""): Promise<{ status: boolean, error?: any }> {
+    async updateRouterVersion(source: string = ""): Promise<CommonReturnType> {
       try {
         return { status: true };
       } catch (error) {
@@ -351,6 +359,7 @@ export function File<Base extends Class>(base: Base) {
       };
     };
 
+    // Function for finding database in the project
     async findDatabase(source: string = ""): Promise<CommonReturnType> {
       try {
         const path = this.#userPath(source)._db_shared;

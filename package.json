@@ -1,7 +1,7 @@
 {
   "name": "express-bp-cli",
   "version": "1.0.0",
-  "description": "",
+  "description": "Express CLI Tool for creating Boiler plate, automatic DB intializing and module creating",
   "type": "module",
   "files": [
     "bin",
@@ -24,8 +24,25 @@
   "bin": {
     "express-bp": "./bin/index.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "express",
+    "expressautomactic",
+    "expresscomponent",
+    "expresscli",
+    "cli",
+    "component",
+    "expressgenerator",
+    "generator",
+    "backend",
+    "backendnode",
+    "server",
+    "mongodb",
+    "dynamodb"
+  ],
+  "engines": {
+    "node": ">=14.18.0"
+  },
+  "author": "Nevin Edwin",
   "license": "MIT",
   "devDependencies": {
     "@types/inquirer": "^9.0.4",

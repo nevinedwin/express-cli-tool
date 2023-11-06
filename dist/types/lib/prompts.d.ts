@@ -1,3 +1,4 @@
+import { CommonReturnType } from './files.js';
 type PromptType = {
     type: "input" | "number" | "confirm" | "list" | "rawlist" | "expand" | "checkbox" | "password" | "editor";
     name: string;
@@ -12,11 +13,11 @@ type Class = new (...args: any[]) => any;
 export declare function PromptClass<Base extends Class>(base: Base): {
     new (...args: any[]): {
         [x: string]: any;
-        promptCreateTemplate(newTemplate?: string): Promise<[any, string?]>;
-        PromptCreateFolder(): Promise<[any, string?]>;
-        promptChoosePort(portParam?: number): Promise<[any, number?]>;
-        promptChooseDB(db?: DBType): Promise<[any, DBType?]>;
-        promptDBName(dbName?: string, projectName?: string): Promise<[any, string?]>;
+        promptCreateTemplate(newTemplate?: string): Promise<CommonReturnType>;
+        PromptCreateFolder(): Promise<CommonReturnType>;
+        promptChoosePort(portParam?: number): Promise<CommonReturnType>;
+        promptChooseDB(db?: DBType): Promise<CommonReturnType>;
+        promptDBName(dbName?: string, projectName?: string): Promise<CommonReturnType>;
     };
 } & Base;
 export declare function prompt({ type, name, message, choices, validate, defaultValue, when }: PromptType): Promise<[any, string?]>;

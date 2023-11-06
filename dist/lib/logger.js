@@ -51,17 +51,32 @@ export function LoggerClass(base) {
             });
             if (isError) {
                 return {
-                    status: false, message: `\nModule ${chalk.red(error[0].moduleName)} is already exists in ${chalk.red(moduleType)}.
+                    status: false, data: `\nModule ${chalk.red(error[0].moduleName)} is already exists in ${chalk.red(moduleType)}.
         `
                 };
             }
             ;
             return {
-                status: true, message: `\nModule ${chalk.green(error[0].moduleName)} created successfully.
+                status: true, data: `\nModule ${chalk.green(error[0].moduleName)} created successfully.
       `
             };
         }
         ;
+        createValidation(options) {
+            if (options.template && !constants.plainTemplates.includes(options.template))
+                return this.logInvalidTemplate(options.template, "template");
+            if (options.port && !/^[0-9]+$/.test(options.port))
+                return this.logInvalidTemplate(options.port, "port");
+            if (options.database && !constants.db.includes(options.database))
+                return this.logInvalidTemplate(options.database, "database");
+            return null;
+        }
+        ;
+        logSuccessInstallation() {
+            return `\nTemplate created successfully.
+      npm run dev
+      `;
+        }
     };
 }
 ;

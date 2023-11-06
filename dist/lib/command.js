@@ -5,8 +5,15 @@ export class Command {
     constructor() {
         const main = new Main(process);
         this.main = main;
+    }
+    ;
+    async init() {
+        await this.getVerison();
+        this.setUpCommands();
+    }
+    ;
+    setUpCommands() {
         this.initCommand();
-        this.showVersionCommand();
         this.createComponentCommand();
         this.helpCustom();
         this.changeVersion();
@@ -34,18 +41,15 @@ export class Command {
         });
     }
     ;
-    showVersionCommand() {
-        program
-            .option('-v, --version', 'Shows version')
-            .action(async () => {
-            await this.main.showVerison();
-        });
+    async getVerison() {
+        const version = await this.main.showVerison();
+        program.version(version);
     }
     ;
     changeVersion() {
         program
             .command('change-version')
-            .description('Change the version of App')
+            .description('Change the version of your Application')
             .action(async () => {
             await this.main.changeUserAppVersion();
         });

@@ -19,10 +19,10 @@ export function PromptClass(base) {
                     template = temp;
                 }
                 const templateName = constants.templates[__toPlainText(template)];
-                return [null, templateName];
+                return { status: true, data: templateName };
             }
-            catch (e) {
-                return [e];
+            catch (error) {
+                return { status: false, error };
             }
             ;
         }
@@ -37,10 +37,10 @@ export function PromptClass(base) {
                 });
                 if (e || !folderName)
                     throw e || "prompt Error";
-                return [null, folderName];
+                return { status: true, data: folderName };
             }
-            catch (e) {
-                return [e];
+            catch (error) {
+                return { status: false, error };
             }
             ;
         }
@@ -59,10 +59,10 @@ export function PromptClass(base) {
                         throw e || "prompt Error";
                     finalPort = parseInt(port, 10);
                 }
-                return [null, finalPort];
+                return { status: true, data: finalPort };
             }
             catch (error) {
-                return [error];
+                return { status: false, error };
             }
             ;
         }
@@ -81,10 +81,10 @@ export function PromptClass(base) {
                         throw e || "prompt Error";
                     dbConfig = newDb;
                 }
-                return [null, dbConfig];
+                return { status: true, data: dbConfig };
             }
             catch (error) {
-                return [error];
+                return { status: false, error };
             }
             ;
         }
@@ -103,10 +103,10 @@ export function PromptClass(base) {
                         throw e || "prompt Error";
                     name = nameDB;
                 }
-                return [null, name];
+                return { status: true, data: name };
             }
             catch (error) {
-                return [error];
+                return { status: false, error };
             }
         }
     };

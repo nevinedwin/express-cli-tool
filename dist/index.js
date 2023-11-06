@@ -45,76 +45,92 @@ export class Main extends File(LoggerClass(PromptClass(class {
         this.isVersioningEnable = true;
     }
     ;
+    // Function for creating boiler plate
     async createBoilerPlate(targetDir = "", options) {
         try {
-            if (options.template && !constants.plainTemplates.includes(options.template))
-                throw super.logInvalidTemplate(options.template, "template");
-            if (options.port && !/^[0-9]+$/.test(options.port))
-                throw super.logInvalidTemplate(options.port, "port");
-            if (options.database && !constants.db.includes(options.database))
-                throw super.logInvalidTemplate(options.database, "database");
+            // validating template, port and database is given correctly 
+            const validation = super.createValidation(options);
+            if (validation)
+                throw validation;
+            // validation for folder name and prompt for it 
             if (!targetDir) {
-                const [e, folderName] = await super.PromptCreateFolder();
-                if (e || !folderName)
-                    throw e;
-                this.folderName = folderName;
+                const _pcf = await super.PromptCreateFolder();
+                if (!_pcf.status)
+                    throw _pcf.error || "Prompting Error";
+                this.folderName = _pcf.data;
             }
             else {
                 this.folderName = targetDir;
             }
             ;
+            // setting the user project path
             const cwd = path.join(this.currentPath, this.folderName);
             this.destination = cwd;
-            const [e, templateName] = await super.promptCreateTemplate(options?.template);
-            if (e || !templateName)
-                throw e || "Prompting Error";
-            this.template = templateName;
+            // prompt for choosing template
+            const promptCreateTemplateResp = await super.promptCreateTemplate(options?.template);
+            if (!promptCreateTemplateResp.status)
+                throw promptCreateTemplateResp.error || "Prompting Error";
+            this.template = promptCreateTemplateResp.data;
             // ----------Remove the below line of code when Express-ts is introduced
             while (this.template === 'express-ts-template') {
                 console.log(super.logTemplateInfo());
                 options.template = "";
-                const [e, templateName] = await super.promptCreateTemplate(options?.template);
-                if (e || !templateName)
-                    throw e || "Prompting Error";
-                this.template = templateName;
+                const _pctResp = await super.promptCreateTemplate(options?.template);
+                if (!_pctResp.status)
+                    throw _pctResp.error || "Prompting Error";
+                this.template = _pctResp.data;
             }
             ;
             // --------------
-            const [ef, folderExists] = super.checkFolderContains(this.template, this.destination);
-            if (ef)
-                throw ef;
-            if (folderExists.length)
-                throw super.logFolderConflicts(this.destination, folderExists);
-            const [err, port] = await super.promptChoosePort(options.port);
-            if (err || !port)
-                throw err || "Prompting Error";
-            this.port = port;
-            const [er, db] = await super.promptChooseDB(options.database);
-            if (er || !db)
-                throw er || "PromptError";
-            this.db = db;
+            // Checking the project folder already contains any similar folder or file in our boiler plate
+            const _cfc = super.checkFolderContains(this.template, this.destination);
+            if (!_cfc.status)
+                throw _cfc.error;
+            if (_cfc.data.length)
+                throw super.logFolderConflicts(this.destination, _cfc.data);
+            // prompt for choosing port
+            const _pcp = await super.promptChoosePort(options.port);
+            if (!_pcp.status)
+                throw _pcp.error || "Prompting Error";
+            this.port = _pcp.data;
+            // prompt for choosing database
+            const _pcdb = await super.promptChooseDB(options.database);
+            if (!_pcdb.status)
+                throw _pcdb.error || "PromptError";
+            this.db = _pcdb.data;
             // ----------Remove this line of code when introduce dynamodb
             while (this.db === 'dynamo') {
                 console.log(super.logDbInfo());
                 options.database = "";
-                const [er, db] = await super.promptChooseDB(options.database);
-                if (er || !db)
-                    throw er || "PromptError";
-                this.db = db;
+                const _pcdbnew = await super.promptChooseDB(options.database);
+                if (!_pcdbnew.status)
+                    throw _pcdbnew.error || "PromptError";
+                this.db = _pcdbnew.data;
             }
             ;
             // -----------
+            // prompt for writing db name
             if (this.db && this.db !== "none") {
-                const [e, dbName] = await super.promptDBName(options.databaseName, this.folderName);
-                if (e || !dbName)
-                    throw e;
-                this.dbName = dbName;
+                const _pcdbname = await super.promptDBName(options.databaseName, this.folderName);
+                if (!_pcdbname.status)
+                    throw _pcdbname.error;
+                this.dbName = _pcdbname.data;
             }
             ;
+            // copying template to project folder
             super.createTemplate(this.template, this.destination);
-            if (this.port)
-                await super.assignPort(this.port, this.destination);
-            await super.changePackageJSON('name', this.destination, this.folderName);
+            // assigning user given port value to project
+            if (this.port) {
+                const _isapSuccess = await super.assignPort(this.port, this.destination);
+                if (!_isapSuccess.status)
+                    throw _isapSuccess.error;
+            }
+            ;
+            // changing the name of the package.json as the project name
+            const _cpj = await super.changePackageJSON('name', this.destination, this.folderName);
+            if (!_cpj.status)
+                throw _cpj.error;
+            // installing all dependencies for intializing project
             const spinner = ora('Installing basic npm packages...').start();
             const isInstallSuccess = await this.#npmInstall();
             if (!isInstallSuccess.status) {
@@ -123,10 +139,16 @@ export class Main extends File(LoggerClass(PromptClass(class {
             }
             ;
             spinner.succeed("Succesfully installed basic npm packages");
-            if (constants.db.includes(this.db) && this.db !== 'none') {
-                super.createDBFile(this.destination, this.db);
+            // adding db configurations
+            if (this.db !== 'none') {
+                //  creating db.shared.js
+                const _cdb = await super.createDBFile(this.destination, this.db);
+                if (!_cdb.status)
+                    throw _cdb.error;
+                // getting the db package name
                 const packageName = constants.dbPackages[this.db];
                 const spinner = ora(`Configuring database`).start();
+                // installing db dependencies
                 const dbPackage = await this.#npmInstall(packageName);
                 if (!dbPackage.status) {
                     spinner.fail('Configuration failed');
@@ -134,6 +156,11 @@ export class Main extends File(LoggerClass(PromptClass(class {
                 }
                 ;
                 spinner.succeed("DB Configured success.");
+                // assigning given name to the database 
+                const _adbn = await super.assignDBName(this.dbName, this.destination);
+                if (!_adbn.status)
+                    throw _adbn.error;
+                // creating model folder and test model
                 const modelCreation = await super.createModuleFiles({
                     moduleName: 'test',
                     destination: this.destination,
@@ -143,7 +170,7 @@ export class Main extends File(LoggerClass(PromptClass(class {
                 });
                 if (!modelCreation.status)
                     throw modelCreation.error;
-                await super.assignDBName(this.dbName, this.destination);
+                // updating helper folder as it can perform db operations
                 const helperCreation = await super.createModuleFiles({
                     moduleName: 'test',
                     destination: this.destination,
@@ -156,6 +183,7 @@ export class Main extends File(LoggerClass(PromptClass(class {
                     throw helperCreation.error;
             }
             ;
+            console.log(super.logSuccessInstallation());
             process.exit(0);
         }
         catch (er) {
@@ -165,18 +193,20 @@ export class Main extends File(LoggerClass(PromptClass(class {
         ;
     }
     ;
+    //  Function for creating modules
     async createModule(action) {
         try {
+            // validating module name is given or not
             if (!action)
                 throw super.logModuleNameNotProvided();
             const modules = ["router", "controller", "helper"];
+            // getting the database
             const findDatabaseResp = await super.findDatabase(this.currentPath);
-            console.log(findDatabaseResp);
             if (findDatabaseResp.status) {
                 modules.push('model');
             }
             ;
-            console.log(modules);
+            // creating modules
             const promises = modules.map(async (eachItem) => {
                 const params = {
                     moduleType: eachItem,
@@ -187,11 +217,12 @@ export class Main extends File(LoggerClass(PromptClass(class {
                 };
                 return super.createModuleFiles(params);
             });
+            // creating modules
             const data = await Promise.all(promises);
             const logResult = super.logModuleResponse(data);
             if (!logResult.status)
-                throw logResult.message;
-            console.log(logResult.message);
+                throw logResult.data;
+            console.log(logResult.data);
             process.exit(0);
         }
         catch (error) {
@@ -201,13 +232,14 @@ export class Main extends File(LoggerClass(PromptClass(class {
         ;
     }
     ;
+    // Function for showing application verison
     async showVerison() {
         try {
             const fileContent = await super.readPackageJSON();
             if (!fileContent.status)
                 throw fileContent.error;
-            console.log(fileContent.data);
-            process.exit(0);
+            const version = fileContent?.data || "1.0.0";
+            return version;
         }
         catch (error) {
             console.log(error);
@@ -216,6 +248,7 @@ export class Main extends File(LoggerClass(PromptClass(class {
         ;
     }
     ;
+    // Function for installing npm packages
     async #npmInstall(packageName = "") {
         const command = packageName ? `npm i ${packageName}` : `npm i`;
         const installNpm = await new Promise((resolve, reject) => {
@@ -258,4 +291,6 @@ export class Main extends File(LoggerClass(PromptClass(class {
 ;
 // ------------starting point------------ //
 const cli = new Command();
-cli.prs();
+cli.init().then(() => {
+    cli.prs();
+});
