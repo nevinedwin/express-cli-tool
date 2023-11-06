@@ -18,7 +18,8 @@
     "startW": "npm run cleanWindows &&  run build && npm run unlink && npm run link",
     "clean": "rm -rf dist",
     "cleanWindows": "rmdir /s dist",
-    "build": "npm run dev && node scripts/copyTemplates.js"
+    "build": "npm run dev && node scripts/copyTemplates.js",
+    "pub": "npm publish --production"
   },
   "main": "dist/index.js",
   "bin": {
