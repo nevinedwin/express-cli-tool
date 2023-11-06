@@ -37,7 +37,12 @@
     "backendnode",
     "server",
     "mongodb",
-    "dynamodb"
+    "dynamodb",
+    "autoexpress",
+    "express-js",
+    "expressjs",
+    "expressts",
+    "modulegenerator"
   ],
   "engines": {
     "node": ">=14.18.0"
