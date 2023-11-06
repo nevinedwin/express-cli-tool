@@ -1,9 +1,9 @@
 /**
- * Copyright (c) 2023-present, Nevin Edwin.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
+* Copyright (c) 2023 Nevin Edwin.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+*/
 /// <reference types="node" resolution-mode="require"/>
 import { CommonReturnType, CreateModuleFilesType } from "./lib/files.js";
 export type DBType = "mongo" | "dynamo" | "none" | "";
