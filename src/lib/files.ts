@@ -116,7 +116,7 @@ export function File<Base extends Class>(base: Base) {
     };
 
     getTemplatePath(libPath: string, templateName: string): string {
-      return `${libPath.slice(0, libPath.lastIndexOf("/lib"))}/templates/${templateName}`
+      return `${libPath.slice(0, libPath.lastIndexOf("\lib"))}/templates/${templateName}`
     };
 
     createTemplate(templateName: string = "", destination: string = "", isExactTemplatePath: boolean = false) {
