@@ -88,7 +88,7 @@ export function File(base) {
         }
         ;
         getTemplatePath(libPath, templateName) {
-            return `${libPath.slice(0, libPath.lastIndexOf("/lib"))}/templates/${templateName}`;
+            return `${libPath.slice(0, libPath.lastIndexOf("\lib"))}/templates/${templateName}`;
         }
         ;
         createTemplate(templateName = "", destination = "", isExactTemplatePath = false) {
