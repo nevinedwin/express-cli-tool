@@ -25,7 +25,7 @@ yarn global add express-bp
 
 ## Create an Express boiler plate
 
-**Your system will need to have Node 14.0.0 or later version.**
+**Your system will need to have Node 16.16.0 or later version.**
 
 To create an express app, you can choose one of the following method.
 
@@ -139,6 +139,14 @@ It will create user.controller, user.router, user.model and user.helper files wi
 | Database                | MongoDB                         |
 | Module Creation         | controller, router, model and helper|
 | Versioning              | Initally Api version is v1, you can have the option to upgrade the version|
+
+## DB Configuration
+
+Express automaticaly configure db.
+
+### MongoDB
+
+For mongo as the database your system must contains mongod or If you want to run Mongodb Atlas just change the Uri in db.shared.js file as the mongodb atlas connection string
 
 ## License
 

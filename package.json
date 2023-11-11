@@ -1,6 +1,6 @@
 {
   "name": "express-bp",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "Express CLI Tool for creating Boiler plate, automatic DB intializing and module creating",
   "type": "module",
   "files": [
@@ -48,7 +48,7 @@
     "expresssimple"
   ],
   "engines": {
-    "node": ">=14.18.0"
+    "node": ">=16.16.0"
   },
   "repository": {
     "type": "git",
