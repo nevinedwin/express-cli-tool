@@ -61,7 +61,7 @@ declare const Main_base: {
         logTemplateInfo(): string;
         logModuleResponse(error: Record<any, any>[]): CommonReturnType;
         createValidation(options: Record<any, any>): string | null;
-        logSuccessInstallation(): string;
+        logSuccessInstallation(appName: string): string;
     };
 } & {
     new (...args: any[]): {

@@ -1,6 +1,6 @@
 {
   "name": "express-bp",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "Express CLI Tool for creating Boiler plate, automatic DB intializing and module creating",
   "type": "module",
   "files": [
@@ -15,7 +15,7 @@
     "unlink": "npm uninstall -g ",
     "link": "npm i -g",
     "start": "npm run clean && npm run build && npm run unlink && npm run link && clear",
-    "startW": "npm run cleanWindows &&  run build && npm run unlink && npm run link",
+    "startW": "npm run cleanWindows && npm run build && npm run unlink && npm run link",
     "clean": "rm -rf dist",
     "cleanWindows": "rmdir /s dist",
     "build": "npm run dev && node scripts/copyTemplates.js",

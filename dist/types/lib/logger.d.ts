@@ -11,7 +11,7 @@ export declare function LoggerClass<Base extends Class>(base: Base): {
         logTemplateInfo(): string;
         logModuleResponse(error: Array<Record<any, any>>): CommonReturnType;
         createValidation(options: Record<any, any>): string | null;
-        logSuccessInstallation(): string;
+        logSuccessInstallation(appName: string): string;
     };
 } & Base;
 export {};

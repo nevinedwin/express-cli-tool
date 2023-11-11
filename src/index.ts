@@ -185,7 +185,7 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
         if (!helperCreation.status) throw helperCreation.error;
       };
 
-      console.log(super.logSuccessInstallation());
+      console.log(super.logSuccessInstallation(this.folderName));
       process.exit(0);
     } catch (er) {
       console.log(er);

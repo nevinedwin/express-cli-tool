@@ -175,7 +175,7 @@ export class Main extends File(LoggerClass(PromptClass(class {
                     throw helperCreation.error;
             }
             ;
-            console.log(super.logSuccessInstallation());
+            console.log(super.logSuccessInstallation(this.folderName));
             process.exit(0);
         }
         catch (er) {

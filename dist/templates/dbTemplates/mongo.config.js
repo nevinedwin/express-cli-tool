@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const dbName = "";
-const uri = `mongodb://localhost:27017/${dbName}`;
+const uri = `mongodb://127.0.0.1:27017/${dbName}`;
 
 const connectDatabase = () => {
   return new Promise(async (resolve, reject) => {

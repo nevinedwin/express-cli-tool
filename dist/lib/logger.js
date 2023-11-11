@@ -72,8 +72,9 @@ export function LoggerClass(base) {
             return null;
         }
         ;
-        logSuccessInstallation() {
+        logSuccessInstallation(appName) {
             return `\nTemplate created successfully.
+      cd ${appName}
       npm run dev
       `;
         }
