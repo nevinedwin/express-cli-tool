@@ -43,7 +43,9 @@
     "express-js",
     "expressjs",
     "expressts",
-    "modulegenerator"
+    "modulegenerator",
+    "simple-express",
+    "expresssimple"
   ],
   "engines": {
     "node": ">=14.18.0"
