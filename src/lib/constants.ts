@@ -43,7 +43,7 @@ export const constants: Record<string, any> = {
     exports.get${name}Controller = async (req, res) => {
       try {
         const data = get${name}Helper();
-        success(res, status_codes_msg.SUCESS, data);
+        success(res, status_codes_msg.SUCESS.message, data);
       } catch (error) {
         failure(res, error);
       };
@@ -52,7 +52,7 @@ export const constants: Record<string, any> = {
     exports.put${name}Controller = async (req, res) => {
       try {
         const data = put${name}Helper();
-        success(res, status_codes_msg.SUCESS, data);
+        success(res, status_codes_msg.SUCESS.message, data);
       } catch (error) {
         failure(res, error);
       };
@@ -61,7 +61,7 @@ export const constants: Record<string, any> = {
     exports.post${name}Controller = async (req, res) => {
       try {
         const data = post${name}Helper();
-        success(res, status_codes_msg.SUCESS, data);
+        success(res, status_codes_msg.SUCESS.message, data);
       } catch (error) {
         failure(res, error);
       };
@@ -70,7 +70,7 @@ export const constants: Record<string, any> = {
     exports.delete${name}Controller = async (req, res) => {
       try {
         const data = delete${name}Helper();
-        success(res, status_codes_msg.SUCESS, data);
+        success(res, status_codes_msg.SUCESS.message, data);
       } catch (error) {
         failure(res, error);
       };
