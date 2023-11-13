@@ -1,6 +1,6 @@
 {
   "name": "express-bp",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Express CLI Tool for creating Boiler plate, automatic DB intializing and module creating",
   "type": "module",
   "files": [

@@ -7,7 +7,7 @@ const { status_codes_msg } = require("../shared/static.shared");
 exports.getTestController = async (req, res) => {
   try {
     const data = getTestHelper();
-    success(res, status_codes_msg.SUCESS, data);
+    success(res, status_codes_msg.SUCESS.message, data);
   } catch (error) {
     failure(res, error);
   };
@@ -16,7 +16,7 @@ exports.getTestController = async (req, res) => {
 exports.putTestController = async (req, res) => {
   try {
     const data = putTestHelper();
-    success(res, status_codes_msg.SUCESS, data);
+    success(res, status_codes_msg.SUCESS.message, data);
   } catch (error) {
     failure(res, error);
   };
@@ -25,7 +25,7 @@ exports.putTestController = async (req, res) => {
 exports.postTestController = async (req, res) => {
   try {
     const data = postTestHelper();
-    success(res, status_codes_msg.SUCESS, data);
+    success(res, status_codes_msg.SUCESS.message, data);
   } catch (error) {
     failure(res, error);
   };
@@ -34,7 +34,7 @@ exports.postTestController = async (req, res) => {
 exports.deleteTestController = async (req, res) => {
   try {
     const data = deleteTestHelper();
-    success(res, status_codes_msg.SUCESS, data);
+    success(res, status_codes_msg.SUCESS.message, data);
   } catch (error) {
     failure(res, error);
   };
