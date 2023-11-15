@@ -40,8 +40,9 @@ This command will prompt to multiple options for configuring express app and dat
 
 ### Through Command
 ```sh
-express-bp create-app -t <templateName> -p <port> -d <database-type> -dn <database-name> app
+express-bp create-app -t <templateName> -p <port> -d <database-type> -dn <database-name> <app name>
 ```
+
 The command options are:
 
 | Options              | Description                                |
@@ -56,6 +57,11 @@ you can use --help command for knows this options and commands:
 
 ```sh
 express-bp --help
+```
+
+### Example
+```sh
+express-bp create-app -t expressjs -p 3040 -d mongo -dn testdb app
 ```
 
 After running the above commad it will create a project directory 'app' inside current folder.
@@ -88,26 +94,22 @@ Applciation created.
 
 For running application 
 
-#### env dev 
+#### Using nodemon 
 
 ```sh
 npm run dev
 ```
-
 or
-
 ```sh
 yarn run dev
 ```
 
+#### Using node
 
-#### env prod 
 ```sh
 npm start
 ```
-
 or
-
 ```sh
 yarn start
 ```
@@ -138,7 +140,6 @@ It will create user.controller, user.router, user.model and user.helper files wi
 | Boiler Plate Templates  | We supports Express-JS and Express-TS tempaltes       |
 | Database                | MongoDB                         |
 | Module Creation         | controller, router, model and helper|
-| Versioning              | Initally Api version is v1, you can have the option to upgrade the version|
 
 ## DB Configuration
 
