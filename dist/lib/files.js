@@ -299,7 +299,7 @@ export function File(base) {
                     packageJsonData.version = `${version + 1}.0.0`;
                 }
                 else {
-                    packageJsonData.name = appName;
+                    packageJsonData.name = appName.toLowerCase();
                 }
                 ;
                 await this.#writeFile(source, JSON.stringify(packageJsonData, null, 2));

@@ -57,7 +57,6 @@ app.use("/api", cors(corsOption), limit, require("./router/index.router"));
 
 /* to handle the not found apis*/
 app.use("/", (req, res, next) => {
-  console.log({ path: req?._parsedUrl });
   failure(res, status_codes_msg.API_NOT_FOUND);
 });
 
@@ -84,5 +83,5 @@ process.on("uncaughtException", (err) => {
 
 // listening to the PORT
 app.listen(port, () => {
-  console.log(`🚀 app running on port: ${port} 🚀`);
+  console.log(`🚀 app running on port: ${port}`);
 });
