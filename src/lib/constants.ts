@@ -37,8 +37,8 @@ export const constants: Record<string, any> = {
     return `"use strict";
 
     const { get${name}Helper, put${name}Helper, post${name}Helper, delete${name}Helper } = require("../helper/${name.toLowerCase()}.helper");
-    const { failure, success } = require("../shared/common.shared");
-    const { status_codes_msg } = require("../shared/static.shared");
+    const { failure, success } = require("../utils/common.utils");
+    const { status_codes_msg } = require("../utils/constants.utils");
     
     exports.get${name}Controller = async (req, res) => {
       try {
@@ -94,7 +94,7 @@ export const constants: Record<string, any> = {
     const name = _to_camelCase(moduleName);
     const _l_name = name.toLowerCase();
     return `
-    ${db === "mongo" && `const ${_l_name}Model = require("../model/${_l_name}.model");`}
+    ${db === "mongo" ? `const ${_l_name}Model = require("../model/${_l_name}.model");` : ""}
     exports.get${name}Helper = () => {
       return "Test Data";
     };
@@ -104,7 +104,7 @@ export const constants: Record<string, any> = {
     };
     
     exports.post${name}Helper = () => {
-      ${db === "mongo" && `new ${_l_name}Model({data: "test"}).save();`}
+      ${db === "mongo" ? `new ${_l_name}Model({data: "test"}).save();` : ""}
       return "Test Data";
     };
     

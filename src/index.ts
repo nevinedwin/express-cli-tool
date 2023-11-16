@@ -282,6 +282,39 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
       process.exit(1);
     }
   };
+
+  async changePort(action: string): Promise<void> {
+    try {
+      // if port not given logging a error message
+      if (!action) throw super.logPortNotProvided();
+
+      // if port is invalid like string showing error message
+      if (super.portValidation(action)) throw super.portValidation(action);
+
+      // Assigning port
+      const result: CommonReturnType = await super.assignPort(parseInt(action), this.currentPath);
+
+      if (!result.status) throw result.error || "Error in assigning port";
+
+      if (result.status && !result.data) {
+        const resp: CommonReturnType = await super.promptEnv();
+        if (resp.status && !resp.data) {
+          console.log(super.logEnvCreationMessage());
+          process.exit(0);
+        };
+      };
+
+      const portCreation: CommonReturnType = await super.assignPort(parseInt(action), this.currentPath, true);
+      if (!portCreation.status) throw portCreation.error;
+
+      console.log(super.logPortChangeSuccess(parseInt(action)));
+
+      process.exit(0);
+    } catch (error) {
+      console.log(error);
+      process.exit(1);
+    };
+  };
 };
 
 

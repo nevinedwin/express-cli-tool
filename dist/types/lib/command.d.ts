@@ -5,6 +5,7 @@ export declare class Command {
     private setUpCommands;
     private initCommand;
     private createComponentCommand;
+    private changePort;
     private getVerison;
     private changeVersion;
     private helpCustom;

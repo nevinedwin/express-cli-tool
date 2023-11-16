@@ -43,8 +43,9 @@ export function File<Base extends Class>(base: Base) {
     #userPath(source: string) {
       return {
         '_package.json': `${source}/package.json`,
-        _server: `${source}/server.js`,
-        _db_shared: `${source}/shared/db.shared.js`
+        _main: `${source}/src/app.js`,
+        _db_shared: `${source}/src/config/db.config.js`,
+        _env: `${source}/.env`
       };
     };
 
@@ -161,6 +162,11 @@ export function File<Base extends Class>(base: Base) {
         const readResult = await this.#readFile(source)
         if (readResult.err || !readResult.data) throw readResult.err;
 
+        // creating config folder
+        if (!fs.existsSync(`${destination}/src/config`)) {
+          fs.mkdirSync(`${destination}/src/config`);
+        };
+
         // writing db template
         readResult.data && await this.#writeFile(newDestination, readResult.data);
         return { status: true };
@@ -196,7 +202,7 @@ export function File<Base extends Class>(base: Base) {
         } = createModuleFilesParams;
 
         if (!ignoreExistance &&
-          fs.existsSync(`${destination}/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`)) {
+          fs.existsSync(`${destination}/src/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`)) {
           throw `${moduleName} module is already exists.`
         };
 
@@ -210,11 +216,11 @@ export function File<Base extends Class>(base: Base) {
         const template: string = chooseTemplete[moduleType];
 
 
-        if (!fs.existsSync(`${destination}/${moduleType}`)) {
-          fs.mkdirSync(`${destination}/${moduleType}`);
+        if (!fs.existsSync(`${destination}/src/${moduleType}`)) {
+          fs.mkdirSync(`${destination}/src/${moduleType}`);
         };
 
-        await this.#writeFile(`${destination}/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`, template);
+        await this.#writeFile(`${destination}/src/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`, template);
 
         if (moduleType === 'router') {
           await this.#createRouterInVersionFolder({
@@ -243,12 +249,12 @@ export function File<Base extends Class>(base: Base) {
         if (!_guav.status) throw _guav.error;
 
         const version = _guav.data;
-        
+
         let path;
         if (isVersioning) {
-          path = `${source}/router/v${version}.router.js`;
+          path = `${source}/src/router/v${version}.router.js`;
         } else {
-          path = `${source}/router/v1.router.js`;
+          path = `${source}/src/router/v1.router.js`;
         }
         const regEx = /module\.exports\s*=\s*app;?/;
         const newStr = `app.use('/${moduleName.toLowerCase()}', require('./${moduleName.toLowerCase()}.router'));`;
@@ -280,31 +286,80 @@ export function File<Base extends Class>(base: Base) {
       };
     };
 
-    async assignPort(port: number, source: string): Promise<CommonReturnType> {
+    async assignPort(port: number, source: string, createFile: boolean = false): Promise<CommonReturnType> {
       try {
-        const path = this.#userPath(source)._server;
-        const regex = /const\s+port\s*=\s*\d+\s*?;?/;
-        const assignPort = await this.customiseValue(path, `const port = ${port};`, regex);
-        if (!assignPort.status) throw assignPort.error;
 
-        return { status: true };
+        const path = this.#userPath(source)._env;
+        const newData = `PORT=${port}`;
+
+        if (!fs.existsSync(path) && !createFile) {
+          return { status: true, data: false };
+        };
+
+        let envNewData = "";
+
+        if (fs.existsSync(path)) {
+          const envData = await this.#readFile(path);
+          if (envData.err) throw envData?.err || "Error in reading .env file";
+          envNewData = envData.data || "";
+        }
+
+
+        if (envNewData.includes("PORT")) {
+          const updatedData = envNewData.replace(/PORT=.+/, newData);
+          await this.#writeFile(path, updatedData);
+        } else {
+          await new Promise((resolve, reject) => {
+            fs.appendFile(path, '\n' + newData, (err) => {
+              if (err) {
+                reject(err);
+              };
+              resolve('Port added successfully');
+            });
+          });
+        };
+        return { status: true, data: true };
       } catch (error) {
         return { status: false, error };
       };
     };
 
-    async assignDBName(dbName: string, source: string): Promise<CommonReturnType> {
+    async assignDBName(dbName: string, source: string, createFile: boolean = false): Promise<CommonReturnType> {
+
       try {
-        const path = this.#userPath(source)._db_shared;
-        const regex = /const\s+dbName\s*=\s*[^;]+\s*?;?/;
-        const updateString = `const dbName = "${dbName}";`;
+        const path = this.#userPath(source)._env;
+        const newData = `URI=${`mongodb://127.0.0.1:27017/${dbName}`}`;
 
-        const assignDBName = await this.customiseValue(path, updateString, regex);
-        if (!assignDBName.status) throw assignDBName.error;
+        if (!fs.existsSync(path) && !createFile) {
+          return { status: true, data: false };
+        };
 
-        const serverPath = this.#userPath(source)._server;
+        let envNewData = "";
+
+        if (fs.existsSync(path)) {
+          const envData = await this.#readFile(path);
+          if (envData.err) throw envData?.err || "Error in reading .env file";
+          envNewData = envData.data || "";
+        }
+
+
+        if (envNewData.includes("DB_NAME")) {
+          const updatedData = envNewData.replace(/URI=.+/, newData);
+          await this.#writeFile(path, updatedData);
+        } else {
+          await new Promise((resolve, reject) => {
+            fs.appendFile(path, '\n' + newData, (err) => {
+              if (err) {
+                reject(err);
+              };
+              resolve('DB_NAME added successfully');
+            });
+          });
+        };
+
+        const serverPath = this.#userPath(source)._main;
         const regexServer = /const\s+app\s*=\s*express\(\);?/;
-        const prevLine = "const { connectDatabase } = require('./shared/db.shared');";
+        const prevLine = "const { connectDatabase } = require('./config/db.config');";
         const refLine = '\n\nconst app = express();';
         const newLine = '\n\nconnectDatabase()';
         const newUpdateString = prevLine + refLine + newLine;
@@ -312,8 +367,9 @@ export function File<Base extends Class>(base: Base) {
         const assignServer = await this.customiseValue(serverPath, newUpdateString, regexServer);
         if (!assignServer.status) throw assignServer.error;
 
-        return { status: true };
-      } catch (error) {
+        return { status: true, data: true };
+      }
+      catch (error) {
         return { status: false, error };
       };
     };

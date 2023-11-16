@@ -14,8 +14,9 @@ declare const Main_base: {
         __dirname: any;
         "__#1@#userPath"(source: string): {
             '_package.json': string;
-            _server: string;
+            _main: string;
             _db_shared: string;
+            _env: string;
         };
         "__#1@#modelRegex"(str?: string): string;
         "__#1@#readFile"(source: string): Promise<{
@@ -43,8 +44,8 @@ declare const Main_base: {
         }>;
         "__#1@#createRouterInVersionFolder"({ source, moduleName, isVersioning }: import("./lib/files.js").createRouterInVersionFolderType): Promise<CommonReturnType>;
         customiseValue(source: string, updatedString: string | undefined, regex: RegExp): Promise<CommonReturnType>;
-        assignPort(port: number, source: string): Promise<CommonReturnType>;
-        assignDBName(dbName: string, source: string): Promise<CommonReturnType>;
+        assignPort(port: number, source: string, createFile?: boolean): Promise<CommonReturnType>;
+        assignDBName(dbName: string, source: string, createFile?: boolean): Promise<CommonReturnType>;
         changePackageJSON(changeItem?: "name" | "version", destination?: string, appName?: string): Promise<CommonReturnType>;
         getUserAppVersion(source?: string): Promise<CommonReturnType>;
         updateRouterVersion(source?: string): Promise<CommonReturnType>;
@@ -57,11 +58,15 @@ declare const Main_base: {
         logFolderConflicts(path: string, folderList: [string]): string;
         logInvalidTemplate(value: string | number, type?: string): string;
         logModuleNameNotProvided(): string;
+        logPortNotProvided(): string;
         logDbInfo(): string;
         logTemplateInfo(): string;
         logModuleResponse(error: Record<any, any>[]): CommonReturnType;
         createValidation(options: Record<any, any>): string | null;
+        portValidation(port: any): string | undefined;
         logSuccessInstallation(appName: string): string;
+        logEnvCreationMessage(): string;
+        logPortChangeSuccess(port: number): string;
     };
 } & {
     new (...args: any[]): {
@@ -71,6 +76,7 @@ declare const Main_base: {
         promptChoosePort(portParam?: number): Promise<CommonReturnType>;
         promptChooseDB(db?: string): Promise<CommonReturnType>;
         promptDBName(dbName?: string, projectName?: string): Promise<CommonReturnType>;
+        promptEnv(): Promise<CommonReturnType>;
     };
 } & {
     new (): {};
@@ -91,5 +97,6 @@ export declare class Main extends Main_base {
     createModule(action: string): Promise<void>;
     showVerison(): Promise<string>;
     changeUserAppVersion(): Promise<void>;
+    changePort(action: string): Promise<void>;
 }
 export {};

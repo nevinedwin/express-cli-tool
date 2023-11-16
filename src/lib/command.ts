@@ -20,6 +20,7 @@ export class Command {
     this.createComponentCommand();
     this.helpCustom();
     this.changeVersion();
+    this.changePort();
   };
 
   private initCommand() {
@@ -41,6 +42,15 @@ export class Command {
       .description('For creating components')
       .action(async (action: string) => {
         await this.main.createModule(action);
+      });
+  };
+
+  private changePort() {
+    program
+      .command('change-port [port]')
+      .description('For changing port')
+      .action(async (action: string) => {
+        await this.main.changePort(action);
       });
   };
 

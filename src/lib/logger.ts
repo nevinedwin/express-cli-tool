@@ -29,6 +29,12 @@ export function LoggerClass<Base extends Class>(base: Base) {
       ${constants.command} ${chalk.yellow('create-module')} ${chalk.blue('user')}\n`
     };
 
+    logPortNotProvided() {
+      return `\nPlease specify the Port
+      ${constants.command} ${chalk.yellow('change-port')} ${chalk.blue('< port >')}\nFor example:
+      ${constants.command} ${chalk.yellow('change-port')} ${chalk.blue(3040)}\n`
+    };
+
     logDbInfo() {
       return `\n
       Currently, we support only ${chalk.green('MongoDB')} as the database system.
@@ -69,8 +75,7 @@ export function LoggerClass<Base extends Class>(base: Base) {
       if (options.template && !constants.plainTemplates.includes(options.template))
         return this.logInvalidTemplate(options.template, "template");
 
-      if (options.port && !/^[0-9]+$/.test(options.port))
-        return this.logInvalidTemplate(options.port, "port");
+      this.portValidation(options.port);
 
       if (options.database && !constants.db.includes(options.database))
         return this.logInvalidTemplate(options.database, "database");
@@ -78,11 +83,24 @@ export function LoggerClass<Base extends Class>(base: Base) {
       return null;
     };
 
+    portValidation(port: any) {
+      if (port && !/^[0-9]+$/.test(port))
+        return this.logInvalidTemplate(port, "port");
+    };
+
     logSuccessInstallation(appName: string) {
       return `\nTemplate created successfully.
       cd ${appName}
       npm run dev
       `
-    }
+    };
+
+    logEnvCreationMessage() {
+      return `\nPlease create ${chalk.blue('.env')} or copy your ${chalk.blue('.env')} for changing port.\n`;
+    };
+
+    logPortChangeSuccess(port: number) {
+      return `\n${chalk.green('Successfully')} changed the PORT\n`
+    };
   };
 };

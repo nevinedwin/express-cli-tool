@@ -31,8 +31,9 @@ export declare function File<Base extends Class>(base: Base): {
         __dirname: any;
         "__#1@#userPath"(source: string): {
             '_package.json': string;
-            _server: string;
+            _main: string;
             _db_shared: string;
+            _env: string;
         };
         "__#1@#modelRegex"(str?: string): string;
         "__#1@#readFile"(source: string): Promise<{
@@ -60,8 +61,8 @@ export declare function File<Base extends Class>(base: Base): {
         }>;
         "__#1@#createRouterInVersionFolder"({ source, moduleName, isVersioning }: createRouterInVersionFolderType): Promise<CommonReturnType>;
         customiseValue(source: string, updatedString: string | undefined, regex: RegExp): Promise<CommonReturnType>;
-        assignPort(port: number, source: string): Promise<CommonReturnType>;
-        assignDBName(dbName: string, source: string): Promise<CommonReturnType>;
+        assignPort(port: number, source: string, createFile?: boolean): Promise<CommonReturnType>;
+        assignDBName(dbName: string, source: string, createFile?: boolean): Promise<CommonReturnType>;
         changePackageJSON(changeItem?: 'name' | 'version', destination?: string, appName?: string): Promise<CommonReturnType>;
         getUserAppVersion(source?: string): Promise<CommonReturnType>;
         updateRouterVersion(source?: string): Promise<CommonReturnType>;

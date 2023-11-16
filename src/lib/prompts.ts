@@ -110,7 +110,24 @@ export function PromptClass<Base extends Class>(base: Base) {
       } catch (error) {
         return { status: false, error }
       }
-    }
+    };
+
+    async promptEnv(): Promise<CommonReturnType>{
+      try {
+        const [e, confirmation] = await prompt({
+          name: "confirmation",
+          type: "confirm",
+          message: "Missing .env file. Continue with creating new .env file",
+          defaultValue: false
+        });
+
+        if(e )  throw e || "Prompt Error";
+
+        return {status: true, data: confirmation}  
+      } catch (error) {
+        return {status: false, error};
+      };
+    };
   };
 
 };
