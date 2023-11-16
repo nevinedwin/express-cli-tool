@@ -124,7 +124,7 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
 
       // assigning user given port value to project
       if (this.port) {
-        const _isapSuccess: CommonReturnType = await super.assignPort(this.port, this.destination);
+        const _isapSuccess: CommonReturnType = await super.assignPort(this.port, this.destination, true);
         if (!_isapSuccess.status) throw _isapSuccess.error;
       };
 

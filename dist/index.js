@@ -113,7 +113,7 @@ export class Main extends File(LoggerClass(PromptClass(class {
             super.createTemplate(this.template, this.destination);
             // assigning user given port value to project
             if (this.port) {
-                const _isapSuccess = await super.assignPort(this.port, this.destination);
+                const _isapSuccess = await super.assignPort(this.port, this.destination, true);
                 if (!_isapSuccess.status)
                     throw _isapSuccess.error;
             }
