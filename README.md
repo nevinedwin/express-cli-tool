@@ -6,6 +6,7 @@ Express bp supports on MacOS, windows and Linux.
 
 - [Create an Express boiler plate](#create-an-express-boiler-plate) - How to create new Express app.
 - [Create Module](#create-module) - How to create Modules.
+- [Change Port](#change-port) - How to change PORT.
 
 ## Installation
 
@@ -69,17 +70,19 @@ Inside the directory You can see the Express Boiler Plate.
 
 ```
 app
-├── controller
-├── helper
-├── model
 ├── node_modules
-├── router
-├── shared
+├── src
+|    ├── config
+|    ├── controller
+|    ├── helper
+|    ├── model
+|    ├── router
+|    ├── utils
+|    └── app.js
 ├── .env
 ├── .gitignore
-├── package.json
 ├── package-lock.json
-└── server.js
+└── package.json
 ```
 
 Once the installation is done, open your project folder:
@@ -133,6 +136,18 @@ express-bp create-module user
 
 It will create user.controller, user.router, user.model and user.helper files with basic crud api.
 
+## Change Port
+
+You can change the port of the application.
+
+```sh
+express-bp change-port < port >
+```
+For Example
+```sh
+express-bp change-port 3040
+```
+
 ## About Express BP CLI Tool
 
 | Features                | Description                     |
@@ -140,6 +155,7 @@ It will create user.controller, user.router, user.model and user.helper files wi
 | Boiler Plate Templates  | We supports Express-JS and Express-TS tempaltes       |
 | Database                | MongoDB                         |
 | Module Creation         | controller, router, model and helper|
+| Change Port             | Can change the PORT of the application |
 
 ## DB Configuration
 
