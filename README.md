@@ -1,6 +1,6 @@
 # Express Boiler Plate CLI Tool (express-bp)
 
-Express bp is a cli tool which can helps to create Express boiler plate easily. Along with that Database configuration and Automatic Module creation also available.
+Kickstart your ExpressJS projects with ease using express-bp, a powerful boilerplate generator designed to streamline the setup process and accelerate your development workflow. This npm package provides a robust foundation for Express applications, complete with pre-configured database settings and an automated component creation system.
 
 Express bp supports on MacOS, windows and Linux.
 
