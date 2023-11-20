@@ -29,93 +29,186 @@ export const constants = {
         "mongo": "mongoose",
         "dynamo": "aws-sdk"
     },
-    controllerTemplate: (moduleName) => {
+    controllerTemplate: (moduleName, isTS = false) => {
         const name = _to_camelCase(moduleName);
-        return `"use strict";
+        if (isTS) {
+            return `
+"use strict";
 
-    const { get${name}Helper, put${name}Helper, post${name}Helper, delete${name}Helper } = require("../helper/${name.toLowerCase()}.helper");
-    const { failure, success } = require("../utils/common.utils");
-    const { status_codes_msg } = require("../utils/constants.utils");
-    
-    exports.get${name}Controller = async (req, res) => {
-      try {
-        const data = get${name}Helper();
-        success(res, status_codes_msg.SUCESS.message, data);
-      } catch (error) {
-        failure(res, error);
-      };
-    };
-    
-    exports.put${name}Controller = async (req, res) => {
-      try {
-        const data = put${name}Helper();
-        success(res, status_codes_msg.SUCESS.message, data);
-      } catch (error) {
-        failure(res, error);
-      };
-    };
-    
-    exports.post${name}Controller = async (req, res) => {
-      try {
-        const data = post${name}Helper();
-        success(res, status_codes_msg.SUCESS.message, data);
-      } catch (error) {
-        failure(res, error);
-      };
-    };
-    
-    exports.delete${name}Controller = async (req, res) => {
-      try {
-        const data = delete${name}Helper();
-        success(res, status_codes_msg.SUCESS.message, data);
-      } catch (error) {
-        failure(res, error);
-      };
-    };`;
+import { get${name}Helper, put${name}Helper, post${name}Helper, delete${name}Helper } from '../helper/${name.toLowerCase()}.helper.js';
+import { failure, success } from '../utils/common.utils.js';
+import constant from "../utils/constants.utils.js";
+
+import { Request, Response } from 'express';
+
+const { status_codes_msg } = constant;
+
+
+export const get${name}Controller = async (req: Request, res: Response) => {
+  try {
+    const data = get${name}Helper();
+    success(res, status_codes_msg.SUCESS.message, data);
+  } catch (error) {
+    failure(res, error);
+  };
+};
+
+export const put${name}Controller = async (req: Request, res: Response) => {
+  try {
+    const data = put${name}Helper();
+    success(res, status_codes_msg.SUCESS.message, data);
+  } catch (error) {
+    failure(res, error);
+  };
+};
+
+export const post${name}Controller = async (req: Request, res: Response) => {
+  try {
+    const data = post${name}Helper();
+    success(res, status_codes_msg.SUCESS.message, data);
+  } catch (error) {
+    failure(res, error);
+  };
+};
+
+export const delete${name}Controller = async (req: Request, res: Response) => {
+  try {
+    const data = delete${name}Helper();
+    success(res, status_codes_msg.SUCESS.message, data);
+  } catch (error) {
+    failure(res, error);
+  };
+};
+      `;
+        }
+        return `
+"use strict";
+
+const { get${name}Helper, put${name}Helper, post${name}Helper, delete${name}Helper } = require("../helper/${name.toLowerCase()}.helper");
+const { failure, success } = require("../utils/common.utils");
+const { status_codes_msg } = require("../utils/constants.utils");
+
+exports.get${name}Controller = async (req, res) => {
+  try {
+    const data = get${name}Helper();
+    success(res, status_codes_msg.SUCESS.message, data);
+  } catch (error) {
+    failure(res, error);
+  };
+};
+
+exports.put${name}Controller = async (req, res) => {
+  try {
+    const data = put${name}Helper();
+    success(res, status_codes_msg.SUCESS.message, data);
+  } catch (error) {
+    failure(res, error);
+  };
+};
+
+exports.post${name}Controller = async (req, res) => {
+  try {
+    const data = post${name}Helper();
+    success(res, status_codes_msg.SUCESS.message, data);
+  } catch (error) {
+    failure(res, error);
+  };
+};
+
+exports.delete${name}Controller = async (req, res) => {
+  try {
+    const data = delete${name}Helper();
+    success(res, status_codes_msg.SUCESS.message, data);
+  } catch (error) {
+    failure(res, error);
+  };
+};`;
     },
-    routerTemplate: (moduleName) => {
+    routerTemplate: (moduleName, isTS = false) => {
         const name = _to_camelCase(moduleName);
-        return `const express = require('express');
-    const { get${name}Controller, put${name}Controller, post${name}Controller, delete${name}Controller } = require('../controller/${name.toLowerCase()}.controller');
-    const app = express();
-    
-    app.get('/', get${name}Controller)
-    app.put('/', put${name}Controller)
-    app.post('/', post${name}Controller)
-    app.delete('/', delete${name}Controller)
-    
-    module.exports = app;`;
+        if (isTS) {
+            return `
+import express from 'express';
+
+import { delete${name}Controller, get${name}Controller, post${name}Controller, put${name}Controller, } from '../controller/${name.toLowerCase()}.controller.js';
+
+const app = express();
+
+
+app.get('/', get${name}Controller)
+app.put('/', put${name}Controller)
+app.post('/', post${name}Controller)
+app.delete('/', delete${name}Controller)
+
+
+export default app;`;
+        }
+        ;
+        return `
+const express = require('express');
+const { get${name}Controller, put${name}Controller, post${name}Controller, delete${name}Controller } = require('../controller/${name.toLowerCase()}.controller');
+const app = express();
+
+app.get('/', get${name}Controller)
+app.put('/', put${name}Controller)
+app.post('/', post${name}Controller)
+app.delete('/', delete${name}Controller)
+
+module.exports = app;`;
     },
-    helperTemplate: (moduleName, db = '') => {
+    helperTemplate: (moduleName, db = '', isTS = false) => {
         const name = _to_camelCase(moduleName);
         const _l_name = name.toLowerCase();
+        if (isTS) {
+            return `
+${db === "mongo" ? ` import ${_l_name}Model from "../model/${_l_name}.model.js"; ` : ""}
+
+export const get${name}Helper = () => {
+  return "Test Data";
+};
+
+export const put${name}Helper = () => {
+  return "Test Data";
+};
+
+export const post${name}Helper = () => {
+  ${db === "mongo" ? `new ${_l_name}Model({data: "test"}).save();` : ""}
+  return "Test Data";
+};
+
+export const delete${name}Helper = () => {
+  return "Test Data";
+};
+      `;
+        }
+        ;
         return `
-    ${db === "mongo" ? `const ${_l_name}Model = require("../model/${_l_name}.model");` : ""}
-    exports.get${name}Helper = () => {
-      return "Test Data";
-    };
-    
-    exports.put${name}Helper = () => {
-      return "Test Data";
-    };
-    
-    exports.post${name}Helper = () => {
-      ${db === "mongo" ? `new ${_l_name}Model({data: "test"}).save();` : ""}
-      return "Test Data";
-    };
-    
-    exports.delete${name}Helper = () => {
-      return "Test Data";
-    };`;
+${db === "mongo" ? `const ${_l_name}Model = require("../model/${_l_name}.model");` : ""}
+exports.get${name}Helper = () => {
+  return "Test Data";
+};
+
+exports.put${name}Helper = () => {
+  return "Test Data";
+};
+
+exports.post${name}Helper = () => {
+  ${db === "mongo" ? `new ${_l_name}Model({data: "test"}).save();` : ""}
+  return "Test Data";
+};
+
+exports.delete${name}Helper = () => {
+  return "Test Data";
+};`;
     },
-    modelTemplate: (value, type) => {
+    modelTemplate: (value, type, isTs = false) => {
         const name = value.toLowerCase();
         let template = "";
         switch (type) {
             case 'mongo':
                 template = `"use strict";
 
-const { default: mongoose } = require("mongoose");
+${isTs ? `import mongoose  from "mongoose";` : `const { default: mongoose } = require("mongoose");`}
 
 const ${name}Schema = new mongoose.Schema(
   {
@@ -129,7 +222,7 @@ const ${name}Schema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("${name}", ${name}Schema);
+${isTs ? `export default mongoose.model("${name}", ${name}Schema);` : `module.exports = mongoose.model("${name}", ${name}Schema);`}
     `;
                 break;
             case 'dynamo':

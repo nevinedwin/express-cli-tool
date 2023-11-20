@@ -11,13 +11,15 @@ export type CreateModuleFilesType = {
   destination: string,
   modelType?: DBType,
   isVersioning?: boolean,
-  ignoreExistance?: boolean
+  ignoreExistance?: boolean,
+  isTs: boolean
 };
 
 export type createRouterInVersionFolderType = {
   source: string;
   isVersioning: boolean;
-  moduleName: string
+  moduleName: string,
+  isTs: boolean
 };
 
 export type CommonReturnType = {
@@ -40,11 +42,11 @@ export function File<Base extends Class>(base: Base) {
       this.__dirname = dirname(this.__filename);
     };
 
-    #userPath(source: string) {
+    #userPath(source: string, isTs: boolean = false) {
       return {
         '_package.json': `${source}/package.json`,
-        _main: `${source}/src/app.js`,
-        _db_shared: `${source}/src/config/db.config.js`,
+        _main: `${source}/src/app.${isTs ? 'ts' : 'js'}`,
+        _db_shared: `${source}/src/config/db.config.${isTs ? 'ts' : 'js'}`,
         _env: `${source}/.env`
       };
     };
@@ -151,12 +153,12 @@ export function File<Base extends Class>(base: Base) {
     };
 
     // Function for creating db.shared.js
-    async createDBFile(destination: string, dbType: DBType): Promise<CommonReturnType> {
+    async createDBFile(destination: string, dbType: DBType, isTS: boolean = false): Promise<CommonReturnType> {
       try {
         // getting the db config template path
-        const source = this.getTemplatePath(this.__dirname, `dbTemplates/${dbType}.config.js`);
+        const source = this.getTemplatePath(this.__dirname, `dbTemplates/${dbType}.${isTS ? 'config.ts' : 'config.js'}`);
         // geting the project path
-        const newDestination = this.#userPath(destination)._db_shared;
+        const newDestination = this.#userPath(destination, isTS)._db_shared;
 
         // reading db template
         const readResult = await this.#readFile(source)
@@ -198,19 +200,20 @@ export function File<Base extends Class>(base: Base) {
           destination,
           modelType = "",
           isVersioning = false,
-          ignoreExistance = false
+          ignoreExistance = false,
+          isTs = false
         } = createModuleFilesParams;
 
         if (!ignoreExistance &&
-          fs.existsSync(`${destination}/src/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`)) {
+          fs.existsSync(`${destination}/src/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.${isTs ? 'ts' : 'js'}`)) {
           throw `${moduleName} module is already exists.`
         };
 
         const chooseTemplete = {
-          controller: constants.controllerTemplate(moduleName),
-          model: constants.modelTemplate(moduleName, modelType),
-          router: constants.routerTemplate(moduleName),
-          helper: constants.helperTemplate(moduleName, modelType)
+          controller: constants.controllerTemplate(moduleName, isTs),
+          model: constants.modelTemplate(moduleName, modelType, isTs),
+          router: constants.routerTemplate(moduleName, isTs),
+          helper: constants.helperTemplate(moduleName, modelType, isTs)
         };
 
         const template: string = chooseTemplete[moduleType];
@@ -220,13 +223,14 @@ export function File<Base extends Class>(base: Base) {
           fs.mkdirSync(`${destination}/src/${moduleType}`);
         };
 
-        await this.#writeFile(`${destination}/src/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`, template);
+        await this.#writeFile(`${destination}/src/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.${isTs ? 'ts' : 'js'}`, template);
 
         if (moduleType === 'router') {
           await this.#createRouterInVersionFolder({
             source: destination,
             isVersioning: false,
-            moduleName
+            moduleName,
+            isTs
           })
         }
 
@@ -241,7 +245,8 @@ export function File<Base extends Class>(base: Base) {
     async #createRouterInVersionFolder({
       source = "",
       moduleName = "",
-      isVersioning = false
+      isVersioning = false,
+      isTs = false
     }: createRouterInVersionFolderType): Promise<CommonReturnType> {
       try {
 
@@ -252,13 +257,13 @@ export function File<Base extends Class>(base: Base) {
 
         let path;
         if (isVersioning) {
-          path = `${source}/src/router/v${version}.router.js`;
+          path = `${source}/src/router/v${version}.router.${isTs ? 'ts' : 'js'}`;
         } else {
-          path = `${source}/src/router/v1.router.js`;
+          path = `${source}/src/router/v1.router.${isTs ? 'ts' : 'js'}`;
         }
-        const regEx = /module\.exports\s*=\s*app;?/;
-        const newStr = `app.use('/${moduleName.toLowerCase()}', require('./${moduleName.toLowerCase()}.router'));`;
-        const oldStr = '\n\nmodule.exports = app;'
+        const regEx = isTs ? /export\s*default\s*app/ : /module\.exports\s*=\s*app;?/;
+        const newStr = isTs ? `import ${moduleName.toLowerCase()}Router from './${moduleName.toLowerCase()}.router.js';\napp.use('/${moduleName.toLowerCase()}', ${moduleName.toLowerCase()}Router);` : `app.use('/${moduleName.toLowerCase()}', require('./${moduleName.toLowerCase()}.router'));`;
+        const oldStr = isTs ? `\n\nexport default app;` : '\n\nmodule.exports = app;'
         const updatedString = newStr + oldStr;
 
         const assignRouter = await this.customiseValue(path, updatedString, regEx);
@@ -324,7 +329,7 @@ export function File<Base extends Class>(base: Base) {
       };
     };
 
-    async assignDBName(dbName: string, source: string, createFile: boolean = false): Promise<CommonReturnType> {
+    async assignDBName(dbName: string, source: string, createFile: boolean = false, isTs: boolean = false): Promise<CommonReturnType> {
 
       try {
         const path = this.#userPath(source)._env;
@@ -357,9 +362,9 @@ export function File<Base extends Class>(base: Base) {
           });
         };
 
-        const serverPath = this.#userPath(source)._main;
+        const serverPath = this.#userPath(source, isTs)._main;
         const regexServer = /const\s+app\s*=\s*express\(\);?/;
-        const prevLine = "const { connectDatabase } = require('./config/db.config');";
+        const prevLine = isTs ? "import connectDatabase from './config/db.config.js';" : "const { connectDatabase } = require('./config/db.config');";
         const refLine = '\n\nconst app = express();';
         const newLine = '\n\nconnectDatabase()';
         const newUpdateString = prevLine + refLine + newLine;
@@ -416,9 +421,9 @@ export function File<Base extends Class>(base: Base) {
     };
 
     // Function for finding database in the project
-    async findDatabase(source: string = ""): Promise<CommonReturnType> {
+    async findDatabase(source: string = "", isTs: boolean = false): Promise<CommonReturnType> {
       try {
-        const path = this.#userPath(source)._db_shared;
+        const path = this.#userPath(source, isTs)._db_shared;
         const readData = await this.#readFile(path);
         if (readData.err || !readData.data) throw readData.err;
         const model = this.#modelRegex(readData.data);

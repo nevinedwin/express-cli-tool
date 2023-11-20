@@ -37,6 +37,7 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
   private db: DBType;
   private destination: string;
   private isVersioningEnable: boolean;
+  private isTs: boolean;
 
   constructor(pss: Record<any, any>) {
     super();
@@ -49,6 +50,7 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
     this.db = "";
     this.destination = "";
     this.isVersioningEnable = true;
+    this.isTs = false;
   };
 
   // Function for creating boiler plate
@@ -76,15 +78,17 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
       if (!promptCreateTemplateResp.status) throw promptCreateTemplateResp.error || "Prompting Error";
       this.template = promptCreateTemplateResp.data;
 
-      // ----------Remove the below line of code when Express-ts is introduced
-      while (this.template === 'express-ts-template') {
-        console.log(super.logTemplateInfo());
-        options.template = "";
-        const _pctResp: CommonReturnType = await super.promptCreateTemplate(options?.template)
-        if (!_pctResp.status) throw _pctResp.error || "Prompting Error";
-        this.template = _pctResp.data;
-      };
-      // --------------
+      if (this.template === 'express-ts-template') this.isTs = true;
+
+      // // ----------Remove the below line of code when Express-ts is introduced
+      // while (this.template === 'express-ts-template') {
+      //   console.log(super.logTemplateInfo());
+      //   options.template = "";
+      //   const _pctResp: CommonReturnType = await super.promptCreateTemplate(options?.template)
+      //   if (!_pctResp.status) throw _pctResp.error || "Prompting Error";
+      //   this.template = _pctResp.data;
+      // };
+      // // --------------
 
       // Checking the project folder already contains any similar folder or file in our boiler plate
       const _cfc: CommonReturnType = super.checkFolderContains(this.template, this.destination);
@@ -144,7 +148,7 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
       // adding db configurations
       if (this.db !== 'none') {
         //  creating db.shared.js
-        const _cdb: CommonReturnType = await super.createDBFile(this.destination, this.db);
+        const _cdb: CommonReturnType = await super.createDBFile(this.destination, this.db, this.isTs);
         if (!_cdb.status) throw _cdb.error;
 
         // getting the db package name
@@ -160,7 +164,7 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
         spinner.succeed("DB Configured success.")
 
         // assigning given name to the database 
-        const _adbn: CommonReturnType = await super.assignDBName(this.dbName, this.destination);
+        const _adbn: CommonReturnType = await super.assignDBName(this.dbName, this.destination, false, this.isTs);
         if (!_adbn.status) throw _adbn.error;
 
         // creating model folder and test model
@@ -169,7 +173,8 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
           destination: this.destination,
           modelType: this.db,
           moduleType: 'model',
-          isVersioning: this.isVersioningEnable
+          isVersioning: this.isVersioningEnable,
+          isTs: this.isTs
         });
         if (!modelCreation.status) throw modelCreation.error;
 
@@ -180,7 +185,8 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
           modelType: this.db,
           moduleType: 'helper',
           isVersioning: this.isVersioningEnable,
-          ignoreExistance: true
+          ignoreExistance: true,
+          isTs: this.isTs
         });
         if (!helperCreation.status) throw helperCreation.error;
       };
@@ -201,8 +207,13 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
 
       const modules = ["router", "controller", "helper"];
 
+      // Find it is TS or not
+      const promptCreateTemplateResp: CommonReturnType = await super.promptChooseCompiler()
+      if (!promptCreateTemplateResp.status) throw promptCreateTemplateResp.error || "Prompting Error";
+      this.isTs = promptCreateTemplateResp.data;
+
       // getting the database
-      const findDatabaseResp: CommonReturnType = await super.findDatabase(this.currentPath);
+      const findDatabaseResp: CommonReturnType = await super.findDatabase(this.currentPath, this.isTs);
       if (findDatabaseResp.status) {
         modules.push('model')
       };
@@ -214,7 +225,8 @@ export class Main extends File(LoggerClass(PromptClass(class { }))) {
           moduleName: action,
           destination: this.currentPath,
           isVersioning: this.isVersioningEnable,
-          modelType: findDatabaseResp.data
+          modelType: findDatabaseResp.data,
+          isTs: this.isTs
         };
         return super.createModuleFiles(params);
       });

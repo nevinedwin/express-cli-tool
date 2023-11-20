@@ -12,11 +12,13 @@ export type CreateModuleFilesType = {
     modelType?: DBType;
     isVersioning?: boolean;
     ignoreExistance?: boolean;
+    isTs: boolean;
 };
 export type createRouterInVersionFolderType = {
     source: string;
     isVersioning: boolean;
     moduleName: string;
+    isTs: boolean;
 };
 export type CommonReturnType = {
     status: boolean;
@@ -29,7 +31,7 @@ export declare function File<Base extends Class>(base: Base): {
         [x: string]: any;
         __filename: any;
         __dirname: any;
-        "__#1@#userPath"(source: string): {
+        "__#1@#userPath"(source: string, isTs?: boolean): {
             '_package.json': string;
             _main: string;
             _db_shared: string;
@@ -47,7 +49,7 @@ export declare function File<Base extends Class>(base: Base): {
         checkFolderContains(templateName: string, destination: string): CommonReturnType;
         getTemplatePath(libPath: string, templateName: string): string;
         createTemplate(templateName?: string, destination?: string, isExactTemplatePath?: boolean): void;
-        createDBFile(destination: string, dbType: DBType): Promise<CommonReturnType>;
+        createDBFile(destination: string, dbType: DBType, isTS?: boolean): Promise<CommonReturnType>;
         readPackageJSON(): Promise<{
             status: boolean;
             error?: any;
@@ -59,14 +61,14 @@ export declare function File<Base extends Class>(base: Base): {
             moduleType: string;
             moduleName?: string;
         }>;
-        "__#1@#createRouterInVersionFolder"({ source, moduleName, isVersioning }: createRouterInVersionFolderType): Promise<CommonReturnType>;
+        "__#1@#createRouterInVersionFolder"({ source, moduleName, isVersioning, isTs }: createRouterInVersionFolderType): Promise<CommonReturnType>;
         customiseValue(source: string, updatedString: string | undefined, regex: RegExp): Promise<CommonReturnType>;
         assignPort(port: number, source: string, createFile?: boolean): Promise<CommonReturnType>;
-        assignDBName(dbName: string, source: string, createFile?: boolean): Promise<CommonReturnType>;
+        assignDBName(dbName: string, source: string, createFile?: boolean, isTs?: boolean): Promise<CommonReturnType>;
         changePackageJSON(changeItem?: 'name' | 'version', destination?: string, appName?: string): Promise<CommonReturnType>;
         getUserAppVersion(source?: string): Promise<CommonReturnType>;
         updateRouterVersion(source?: string): Promise<CommonReturnType>;
-        findDatabase(source?: string): Promise<CommonReturnType>;
+        findDatabase(source?: string, isTs?: boolean): Promise<CommonReturnType>;
     };
 } & Base;
 export {};

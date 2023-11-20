@@ -112,7 +112,7 @@ export function PromptClass<Base extends Class>(base: Base) {
       }
     };
 
-    async promptEnv(): Promise<CommonReturnType>{
+    async promptEnv(): Promise<CommonReturnType> {
       try {
         const [e, confirmation] = await prompt({
           name: "confirmation",
@@ -121,11 +121,48 @@ export function PromptClass<Base extends Class>(base: Base) {
           defaultValue: false
         });
 
-        if(e )  throw e || "Prompt Error";
+        if (e) throw e || "Prompt Error";
 
-        return {status: true, data: confirmation}  
+        return { status: true, data: confirmation }
       } catch (error) {
-        return {status: false, error};
+        return { status: false, error };
+      };
+    };
+
+    async promptChooseCompiler(): Promise<CommonReturnType> {
+      try {
+        let choices = [chalk.yellow("Javascript"), chalk.blue("Typescript")];
+        let templateName: string = "";
+
+        let flag = true;
+        while (flag) {
+          let [e, temp]: [any, string?] = await prompt({
+            name: "template",
+            type: "list",
+            message: `\nchoose template: ${chalk.grey('> use arrow keys to choose template and press enter')}\n`,
+            choices: choices
+          })
+          if (e || !temp) throw e || "Template Selection Error";
+
+          templateName = __toPlainText(temp);
+
+          const [err, confirmation] = await prompt({
+            name: "confirmation",
+            type: "confirm",
+            message: `\nAre you sure that you want ${templateName} template ? ${chalk.grey('> press "cntl + c" for quit')}\n`,
+            defaultValue: false
+          });
+
+          if (err) throw err || "Prompt Error";
+
+          if (confirmation) {
+            flag = false
+          };
+
+        }
+        return { status: true, data: templateName === "Javascript" ? false : true };
+      } catch (error) {
+        return { status: false, error };
       };
     };
   };

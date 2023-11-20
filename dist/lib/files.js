@@ -12,11 +12,11 @@ export function File(base) {
             this.__dirname = dirname(this.__filename);
         }
         ;
-        #userPath(source) {
+        #userPath(source, isTs = false) {
             return {
                 '_package.json': `${source}/package.json`,
-                _main: `${source}/src/app.js`,
-                _db_shared: `${source}/src/config/db.config.js`,
+                _main: `${source}/src/app.${isTs ? 'ts' : 'js'}`,
+                _db_shared: `${source}/src/config/db.config.${isTs ? 'ts' : 'js'}`,
                 _env: `${source}/.env`
             };
         }
@@ -126,12 +126,12 @@ export function File(base) {
         }
         ;
         // Function for creating db.shared.js
-        async createDBFile(destination, dbType) {
+        async createDBFile(destination, dbType, isTS = false) {
             try {
                 // getting the db config template path
-                const source = this.getTemplatePath(this.__dirname, `dbTemplates/${dbType}.config.js`);
+                const source = this.getTemplatePath(this.__dirname, `dbTemplates/${dbType}.${isTS ? 'config.ts' : 'config.js'}`);
                 // geting the project path
-                const newDestination = this.#userPath(destination)._db_shared;
+                const newDestination = this.#userPath(destination, isTS)._db_shared;
                 // reading db template
                 const readResult = await this.#readFile(source);
                 if (readResult.err || !readResult.data)
@@ -170,29 +170,30 @@ export function File(base) {
         // Function for creating all modules
         async createModuleFiles(createModuleFilesParams) {
             try {
-                const { moduleType, moduleName, destination, modelType = "", isVersioning = false, ignoreExistance = false } = createModuleFilesParams;
+                const { moduleType, moduleName, destination, modelType = "", isVersioning = false, ignoreExistance = false, isTs = false } = createModuleFilesParams;
                 if (!ignoreExistance &&
-                    fs.existsSync(`${destination}/src/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`)) {
+                    fs.existsSync(`${destination}/src/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.${isTs ? 'ts' : 'js'}`)) {
                     throw `${moduleName} module is already exists.`;
                 }
                 ;
                 const chooseTemplete = {
-                    controller: constants.controllerTemplate(moduleName),
-                    model: constants.modelTemplate(moduleName, modelType),
-                    router: constants.routerTemplate(moduleName),
-                    helper: constants.helperTemplate(moduleName, modelType)
+                    controller: constants.controllerTemplate(moduleName, isTs),
+                    model: constants.modelTemplate(moduleName, modelType, isTs),
+                    router: constants.routerTemplate(moduleName, isTs),
+                    helper: constants.helperTemplate(moduleName, modelType, isTs)
                 };
                 const template = chooseTemplete[moduleType];
                 if (!fs.existsSync(`${destination}/src/${moduleType}`)) {
                     fs.mkdirSync(`${destination}/src/${moduleType}`);
                 }
                 ;
-                await this.#writeFile(`${destination}/src/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.js`, template);
+                await this.#writeFile(`${destination}/src/${moduleType}/${moduleName.toLowerCase()}.${moduleType}.${isTs ? 'ts' : 'js'}`, template);
                 if (moduleType === 'router') {
                     await this.#createRouterInVersionFolder({
                         source: destination,
                         isVersioning: false,
-                        moduleName
+                        moduleName,
+                        isTs
                     });
                 }
                 return { status: true, moduleType, moduleName };
@@ -205,7 +206,7 @@ export function File(base) {
         }
         ;
         // Function for importing router in V1/ version folder
-        async #createRouterInVersionFolder({ source = "", moduleName = "", isVersioning = false }) {
+        async #createRouterInVersionFolder({ source = "", moduleName = "", isVersioning = false, isTs = false }) {
             try {
                 const _guav = await this.getUserAppVersion(source);
                 if (!_guav.status)
@@ -213,14 +214,14 @@ export function File(base) {
                 const version = _guav.data;
                 let path;
                 if (isVersioning) {
-                    path = `${source}/src/router/v${version}.router.js`;
+                    path = `${source}/src/router/v${version}.router.${isTs ? 'ts' : 'js'}`;
                 }
                 else {
-                    path = `${source}/src/router/v1.router.js`;
+                    path = `${source}/src/router/v1.router.${isTs ? 'ts' : 'js'}`;
                 }
-                const regEx = /module\.exports\s*=\s*app;?/;
-                const newStr = `app.use('/${moduleName.toLowerCase()}', require('./${moduleName.toLowerCase()}.router'));`;
-                const oldStr = '\n\nmodule.exports = app;';
+                const regEx = isTs ? /export\s*default\s*app/ : /module\.exports\s*=\s*app;?/;
+                const newStr = isTs ? `import ${moduleName.toLowerCase()}Router from './${moduleName.toLowerCase()}.router.js';\napp.use('/${moduleName.toLowerCase()}', ${moduleName.toLowerCase()}Router);` : `app.use('/${moduleName.toLowerCase()}', require('./${moduleName.toLowerCase()}.router'));`;
+                const oldStr = isTs ? `\n\nexport default app;` : '\n\nmodule.exports = app;';
                 const updatedString = newStr + oldStr;
                 const assignRouter = await this.customiseValue(path, updatedString, regEx);
                 if (!assignRouter.status)
@@ -292,7 +293,7 @@ export function File(base) {
             ;
         }
         ;
-        async assignDBName(dbName, source, createFile = false) {
+        async assignDBName(dbName, source, createFile = false, isTs = false) {
             try {
                 const path = this.#userPath(source)._env;
                 const newData = `URI=${`mongodb://127.0.0.1:27017/${dbName}`}`;
@@ -323,9 +324,9 @@ export function File(base) {
                     });
                 }
                 ;
-                const serverPath = this.#userPath(source)._main;
+                const serverPath = this.#userPath(source, isTs)._main;
                 const regexServer = /const\s+app\s*=\s*express\(\);?/;
-                const prevLine = "const { connectDatabase } = require('./config/db.config');";
+                const prevLine = isTs ? "import connectDatabase from './config/db.config.js';" : "const { connectDatabase } = require('./config/db.config');";
                 const refLine = '\n\nconst app = express();';
                 const newLine = '\n\nconnectDatabase()';
                 const newUpdateString = prevLine + refLine + newLine;
@@ -391,9 +392,9 @@ export function File(base) {
         }
         ;
         // Function for finding database in the project
-        async findDatabase(source = "") {
+        async findDatabase(source = "", isTs = false) {
             try {
-                const path = this.#userPath(source)._db_shared;
+                const path = this.#userPath(source, isTs)._db_shared;
                 const readData = await this.#readFile(path);
                 if (readData.err || !readData.data)
                     throw readData.err;

@@ -128,6 +128,42 @@ export function PromptClass(base) {
             ;
         }
         ;
+        async promptChooseCompiler() {
+            try {
+                let choices = [chalk.yellow("Javascript"), chalk.blue("Typescript")];
+                let templateName = "";
+                let flag = true;
+                while (flag) {
+                    let [e, temp] = await prompt({
+                        name: "template",
+                        type: "list",
+                        message: `\nchoose template: ${chalk.grey('> use arrow keys to choose template and press enter')}\n`,
+                        choices: choices
+                    });
+                    if (e || !temp)
+                        throw e || "Template Selection Error";
+                    templateName = __toPlainText(temp);
+                    const [err, confirmation] = await prompt({
+                        name: "confirmation",
+                        type: "confirm",
+                        message: `\nAre you sure that you want ${templateName} template ? ${chalk.grey('> press "cntl + c" for quit')}\n`,
+                        defaultValue: false
+                    });
+                    if (err)
+                        throw err || "Prompt Error";
+                    if (confirmation) {
+                        flag = false;
+                    }
+                    ;
+                }
+                return { status: true, data: templateName === "Javascript" ? false : true };
+            }
+            catch (error) {
+                return { status: false, error };
+            }
+            ;
+        }
+        ;
     };
 }
 ;

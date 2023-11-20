@@ -5,7 +5,6 @@
     "lib": [
       "es2023"
     ],
-    "outDir": "dist",
     "module": "node16",
     "target": "es2022",
     "strict": true,
@@ -13,13 +12,10 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node16",
-    "declaration": true,
-    "declarationDir": "dist/types",
+    "outDir": "dist"
   },
   "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "src/templates"
+    "src/**/*.*.ts",
+    "src/**/*.ts",
   ]
 }

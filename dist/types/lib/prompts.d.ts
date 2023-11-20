@@ -19,6 +19,7 @@ export declare function PromptClass<Base extends Class>(base: Base): {
         promptChooseDB(db?: DBType): Promise<CommonReturnType>;
         promptDBName(dbName?: string, projectName?: string): Promise<CommonReturnType>;
         promptEnv(): Promise<CommonReturnType>;
+        promptChooseCompiler(): Promise<CommonReturnType>;
     };
 } & Base;
 export declare function prompt({ type, name, message, choices, validate, defaultValue, when }: PromptType): Promise<[any, string?]>;

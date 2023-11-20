@@ -12,7 +12,7 @@ declare const Main_base: {
         [x: string]: any;
         __filename: any;
         __dirname: any;
-        "__#1@#userPath"(source: string): {
+        "__#1@#userPath"(source: string, isTs?: boolean): {
             '_package.json': string;
             _main: string;
             _db_shared: string;
@@ -30,7 +30,7 @@ declare const Main_base: {
         checkFolderContains(templateName: string, destination: string): CommonReturnType;
         getTemplatePath(libPath: string, templateName: string): string;
         createTemplate(templateName?: string, destination?: string, isExactTemplatePath?: boolean): void;
-        createDBFile(destination: string, dbType: DBType): Promise<CommonReturnType>;
+        createDBFile(destination: string, dbType: DBType, isTS?: boolean): Promise<CommonReturnType>;
         readPackageJSON(): Promise<{
             status: boolean;
             error?: any;
@@ -42,14 +42,14 @@ declare const Main_base: {
             moduleType: string;
             moduleName?: string | undefined;
         }>;
-        "__#1@#createRouterInVersionFolder"({ source, moduleName, isVersioning }: import("./lib/files.js").createRouterInVersionFolderType): Promise<CommonReturnType>;
+        "__#1@#createRouterInVersionFolder"({ source, moduleName, isVersioning, isTs }: import("./lib/files.js").createRouterInVersionFolderType): Promise<CommonReturnType>;
         customiseValue(source: string, updatedString: string | undefined, regex: RegExp): Promise<CommonReturnType>;
         assignPort(port: number, source: string, createFile?: boolean): Promise<CommonReturnType>;
-        assignDBName(dbName: string, source: string, createFile?: boolean): Promise<CommonReturnType>;
+        assignDBName(dbName: string, source: string, createFile?: boolean, isTs?: boolean): Promise<CommonReturnType>;
         changePackageJSON(changeItem?: "name" | "version", destination?: string, appName?: string): Promise<CommonReturnType>;
         getUserAppVersion(source?: string): Promise<CommonReturnType>;
         updateRouterVersion(source?: string): Promise<CommonReturnType>;
-        findDatabase(source?: string): Promise<CommonReturnType>;
+        findDatabase(source?: string, isTs?: boolean): Promise<CommonReturnType>;
     };
 } & {
     new (...args: any[]): {
@@ -77,6 +77,7 @@ declare const Main_base: {
         promptChooseDB(db?: string): Promise<CommonReturnType>;
         promptDBName(dbName?: string, projectName?: string): Promise<CommonReturnType>;
         promptEnv(): Promise<CommonReturnType>;
+        promptChooseCompiler(): Promise<CommonReturnType>;
     };
 } & {
     new (): {};
@@ -92,6 +93,7 @@ export declare class Main extends Main_base {
     private db;
     private destination;
     private isVersioningEnable;
+    private isTs;
     constructor(pss: Record<any, any>);
     createBoilerPlate(targetDir: string | undefined, options: Record<any, any>): Promise<void>;
     createModule(action: string): Promise<void>;
