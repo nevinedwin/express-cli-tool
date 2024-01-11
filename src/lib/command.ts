@@ -19,7 +19,7 @@ export class Command {
     this.initCommand();
     this.createComponentCommand();
     this.helpCustom();
-    this.changeVersion();
+    // this.changeVersion();
     this.changePort();
   };
 
