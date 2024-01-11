@@ -16,7 +16,7 @@ export class Command {
         this.initCommand();
         this.createComponentCommand();
         this.helpCustom();
-        this.changeVersion();
+        // this.changeVersion();
         this.changePort();
     }
     ;
@@ -57,12 +57,12 @@ export class Command {
     }
     ;
     changeVersion() {
-        program
-            .command('change-version')
-            .description('Change the version of your Application')
-            .action(async () => {
-            await this.main.changeUserAppVersion();
-        });
+        // program
+        //   .command('change-version')
+        //   .description('Change the version of your Application')
+        //   .action(async () => {
+        //     await this.main.changeUserAppVersion();
+        //   });0
     }
     ;
     helpCustom() {

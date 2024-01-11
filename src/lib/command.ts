@@ -60,12 +60,12 @@ export class Command {
   };
 
   private changeVersion() {
-    program
-      .command('change-version')
-      .description('Change the version of your Application')
-      .action(async () => {
-        await this.main.changeUserAppVersion();
-      });
+    // program
+    //   .command('change-version')
+    //   .description('Change the version of your Application')
+    //   .action(async () => {
+    //     await this.main.changeUserAppVersion();
+    //   });0
   };
 
   private helpCustom() {
