@@ -172,40 +172,40 @@ module.exports = app;`;
 ${db === "mongo" ? ` import ${_l_name}Model from "../model/${_l_name}.model.js"; ` : ""}
 
 export const get${name}Helper = () => {
-  return "Test Data";
+  return "${name} Data";
 };
 
 export const put${name}Helper = () => {
-  return "Test Data";
+  return "${name} Data";
 };
 
 export const post${name}Helper = () => {
   ${db === "mongo" ? `new ${_l_name}Model({data: "test"}).save();` : ""}
-  return "Test Data";
+  return "${name} Data";
 };
 
 export const delete${name}Helper = () => {
-  return "Test Data";
+  return "${name} Data";
 };
       `
     };
     return `
 ${db === "mongo" ? `const ${_l_name}Model = require("../model/${_l_name}.model");` : ""}
 exports.get${name}Helper = () => {
-  return "Test Data";
+  return "${name} Data";
 };
 
 exports.put${name}Helper = () => {
-  return "Test Data";
+  return "${name} Data";
 };
 
 exports.post${name}Helper = () => {
   ${db === "mongo" ? `new ${_l_name}Model({data: "test"}).save();` : ""}
-  return "Test Data";
+  return "${name} Data";
 };
 
 exports.delete${name}Helper = () => {
-  return "Test Data";
+  return "${name} Data";
 };`;
   },
   modelTemplate: (value: string, type: string, isTs: boolean = false): string => {
