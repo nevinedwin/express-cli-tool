@@ -34,7 +34,7 @@ export function LoggerClass(base) {
             return `\n
       Currently, we support only ${chalk.green('MongoDB')} as the database system.
       We are actively working on introducing support for ${chalk.red('DynamoDB')}, 
-      it will be available in upcoming versions of the Express Boiler Plate (express-bp) CLI Tool.
+      it will be available in upcoming versions of the Express CLI Tool (express-cli-tool).
       `;
         }
         ;
@@ -42,7 +42,7 @@ export function LoggerClass(base) {
             return `\n
       Currently, we support only ${chalk.yellow('Express-JS')} template.
       We are actively working on introducing ${chalk.blue('Express-TS')} template, 
-      it will be available in upcoming versions of the Express Boiler Plate (express-bp) CLI Tool.
+      it will be available in upcoming versions of the Express CLI Tool (express-bp).
       `;
         }
         ;

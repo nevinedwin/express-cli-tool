@@ -3,7 +3,7 @@ export const _to_camelCase = (value) => {
     return value[0].toUpperCase() + value.slice(1, value.length).toLowerCase();
 };
 export const constants = {
-    command: "express-bp",
+    command: "express",
     templateChoices: [
         `${chalk.yellow("Express-JS")}`,
         `${chalk.blue("Express-TS")}`,

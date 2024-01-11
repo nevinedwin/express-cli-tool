@@ -5,7 +5,7 @@ export const _to_camelCase = (value: string) => {
 };
 
 export const constants: Record<string, any> = {
-  command: "express-bp",
+  command: "express",
   templateChoices:
     [
       `${chalk.yellow("Express-JS")}`,

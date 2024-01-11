@@ -1,10 +1,10 @@
-# Express Boiler Plate CLI Tool (express-bp)
+# Express CLI Tool (express-cli-tool)
 
-Kickstart your ExpressJS projects with ease using express-bp, a powerful boilerplate generator designed to streamline the setup process and accelerate your development workflow. This npm package provides a robust foundation for Express applications, complete with pre-configured database settings and an automated component creation system.
+Kickstart your ExpressJS projects with ease using express-cli-tool, a powerful boilerplate generator designed to streamline the setup process and accelerate your development workflow. This npm package provides a robust foundation for Express applications, complete with pre-configured database settings and an automated component creation system.
 
-Express bp supports on MacOS, windows and Linux.
+Express CLI Tool supports on MacOS, windows and Linux.
 
-- [Create an Express boiler plate](#create-an-express-boiler-plate) - How to create new Express app.
+- [Create an Express Application](#create-an-express-boiler-plate) - How to create new Express app.
 - [Create Module](#create-module) - How to create Modules.
 - [Change Port](#change-port) - How to change PORT.
 
@@ -15,16 +15,16 @@ You should install it **globally**.
 ### With NPM
 
 ```sh
-npm install -g express-bp
+npm install -g express-cli-tool
 ```
 
 ### With Yarn
 
 ```sh
-yarn global add express-bp
+yarn global add express-cli-tool
 ```
 
-## Create an Express boiler plate
+## Create an Express Applciation
 
 **Your system will need to have Node 16.16.0 or later version.**
 
@@ -33,7 +33,7 @@ To create an express app, you can choose one of the following method.
 ### Through Prompt
 
 ```sh
-express-bp create-app
+express create-app
 ```
 
 This command will prompt to multiple options for configuring express app and database.
@@ -41,7 +41,7 @@ This command will prompt to multiple options for configuring express app and dat
 
 ### Through Command
 ```sh
-express-bp create-app -t <templateName> -p <port> -d <database-type> -dn <database-name> <app name>
+express create-app -t <templateName> -p <port> -d <database-type> -dn <database-name> <app name>
 ```
 
 The command options are:
@@ -57,16 +57,16 @@ The command options are:
 you can use --help command for knows this options and commands:
 
 ```sh
-express-bp --help
+express --help
 ```
 
 ### Example
 ```sh
-express-bp create-app -t expressjs -p 3040 -d mongo -dn testdb app
+express create-app -t expressjs -p 3040 -d mongo -dn testdb app
 ```
 
 After running the above commad it will create a project directory 'app' inside current folder.
-Inside the directory You can see the Express Boiler Plate.
+Inside the directory You can see the Express Application.
 
 ```
 app
@@ -125,13 +125,13 @@ You can automatically create modules. Which means you can create Controller, rou
 command for creating module
 
 ```sh
-express-bp create-module <module-name>
+express create-module <module-name>
 ```
 
 For example;
 
-```
-express-bp create-module user
+```sh
+express create-module user
 ```
 
 It will create user.controller, user.router, user.model and user.helper files with basic crud api.
@@ -141,14 +141,14 @@ It will create user.controller, user.router, user.model and user.helper files wi
 You can change the port of the application.
 
 ```sh
-express-bp change-port < port >
+express change-port < port >
 ```
 For Example
 ```sh
-express-bp change-port 3040
+express change-port 3040
 ```
 
-## About Express BP CLI Tool
+## About Express CLI Tool
 
 | Features                | Description                     |
 |-------------------------|---------------------------------|
@@ -167,4 +167,4 @@ For mongo as the database your system must contains mongod or If you want to run
 
 ## License
 
-Express boiler plate (express-bp) is open source software [licenced as MIT](https://github.com/nevinedwin/express-cli-tool/blob/main/LICENSE).
+Express CLI Tool (express-cli-tool) is open source software [licenced as MIT](https://github.com/nevinedwin/express-cli-tool/blob/main/LICENSE).
