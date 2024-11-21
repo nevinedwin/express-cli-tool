@@ -47,5 +47,4 @@ configsample
   appName: "",
   isVersioningEnable: true,
   database: "monogo",
-  
 }

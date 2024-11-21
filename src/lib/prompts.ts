@@ -177,8 +177,8 @@ export async function prompt({ type, name, message = "", choices = [], validate,
         type,
         name,
         message,
-        choices,
-        validate,
+        ...(choices && {choices}),
+        ...(validate && { validate }),
         default: defaultValue
       }
     ]);
