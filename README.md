@@ -1,6 +1,6 @@
 # Express CLI Tool (express-cli-tool)
 
-Kickstart your ExpressJS projects with ease using express-cli-tool, a powerful boilerplate generator designed to streamline the setup process and accelerate your development workflow. This npm package provides a robust foundation for Express applications, complete with pre-configured database settings and an automated component creation system.
+Kickstart your Express JS projects with ease using express-cli-tool, a powerful boilerplate generator designed to streamline the setup process and accelerate your development workflow. This npm package provides a robust foundation for Express applications, complete with pre-configured database settings and an automated component creation system.
 
 Express CLI Tool supports on MacOS, windows and Linux.
 
